@@ -51,7 +51,7 @@ local NewTab = Window:MakeTab({
 	PremiumOnly = false
 })
 
-local Section = OtherTab:AddSection({
+local Section = NewTab:AddSection({
 	Name = "New"
 })
 
