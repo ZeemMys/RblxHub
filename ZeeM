@@ -1,0 +1,46 @@
+local OrionLib = loadstring(game:HttpGet(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+
+local Window = OrionLib:MakeWindow({Name = "Zeem Hub", HidePremium = false, SaveConfig = true, ConfigFolder = "OrionTest"})
+
+local PLayerTab = Window:MakeTab({
+	Name = "Main",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+local Section = PLayerTab:AddSection({
+	Name = "PLayer"
+})
+
+OrionLib:MakeNotification({
+	Name = "Welcome",
+	Content = "Thanks For Use",
+	Image = "rbxassetid://4483345998",
+	Time = 10
+})
+
+PLayerTab:AddSlider({
+	Name = "WalkSpeed",
+	Min = 100,
+	Max = 500,
+	Default = 5,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Speed",
+	Callback = function(Value)
+	 game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+	end
+})
+
+PLayerTab:AddSlider({
+	Name = "Jump",
+	Min = 100,
+	Max = 500,
+	Default = 5,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Height",
+	Callback = function(Value)
+	 game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
+	end
+})
