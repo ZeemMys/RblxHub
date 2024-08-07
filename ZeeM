@@ -58,19 +58,19 @@ PlayerTab:AddSlider({
 	end
 })
 
-local MoreTab = Window:MakeTab({
-	Name = "Other",
+local MM2Tab = Window:MakeTab({
+	Name = "Murder Mystery 2",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
 
-local Section = MoreTab:AddSection({
-	Name = "More"
+local Section = Murder Mystery 2Tab:AddSection({
+	Name = "MM2"
 })
 
-MoreTab:AddButton({
-	Name = "Discord",
+MM2Tab:AddButton({
+	Name = "X-ray",
 	Callback = function()
-      		print("button pressed")
+      		.
   	end    
 })
