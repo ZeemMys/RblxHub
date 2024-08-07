@@ -44,3 +44,20 @@ PLayerTab:AddSlider({
 	 game.Players.LocalPlayer.Character.Humanoid.JumpPower = Value
 	end
 })
+
+local Section = OtherTab:AddSection({
+	Name = "Other"
+})
+
+OtherTab:AddSlider({
+	Name = "Gravity",
+	Min = 100,
+	Max = 500,
+	Default = 5,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "Gravity",
+	Callback = function(Value)
+	 game.Players.LocalPlayer.Character.Humanoid.Gravity = Value
+	end
+})
