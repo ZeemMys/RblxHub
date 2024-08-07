@@ -45,17 +45,7 @@ PLayerTab:AddSlider({
 	end
 })
 
-local MoreTab = Window:MakeTab({
-	Name = "Other",
-	Icon = "rbxassetid://4483345998",
-	PremiumOnly = false
-})
-
-local Section = MoreTab:AddSection({
-	Name = "More"
-})
-
-MoreTab:AddSlider({
+PlayerTab:AddSlider({
 	Name = "Gravity",
 	Min = 100,
 	Max = 500,
@@ -66,4 +56,21 @@ MoreTab:AddSlider({
 	Callback = function(Value)
 	 game.Players.LocalPlayer.Character.Humanoid.Gravity = Value
 	end
+})
+
+local MoreTab = Window:MakeTab({
+	Name = "Other",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
+local Section = MoreTab:AddSection({
+	Name = "More"
+})
+
+MoreTab:AddButton({
+	Name = "Discord",
+	Callback = function()
+      		print("button pressed")
+  	end    
 })
