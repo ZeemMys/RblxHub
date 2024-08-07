@@ -45,17 +45,17 @@ PLayerTab:AddSlider({
 	end
 })
 
-local NewTab = Window:MakeTab({
+local MoreTab = Window:MakeTab({
 	Name = "Other",
 	Icon = "rbxassetid://4483345998",
 	PremiumOnly = false
 })
 
-local Section = NewTab:AddSection({
-	Name = "New"
+local Section = MoreTab:AddSection({
+	Name = "More"
 })
 
-NewTab:AddSlider({
+MoreTab:AddSlider({
 	Name = "Gravity",
 	Min = 100,
 	Max = 500,
