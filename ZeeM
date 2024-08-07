@@ -45,6 +45,12 @@ PLayerTab:AddSlider({
 	end
 })
 
+local OtherTab = Window:MakeTab({
+	Name = "Other",
+	Icon = "rbxassetid://4483345998",
+	PremiumOnly = false
+})
+
 local Section = OtherTab:AddSection({
 	Name = "Other"
 })
