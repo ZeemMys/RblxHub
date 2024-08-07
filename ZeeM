@@ -64,7 +64,7 @@ local MM2Tab = Window:MakeTab({
 	PremiumOnly = false
 })
 
-local Section = Murder Mystery 2Tab:AddSection({
+local Section = MM2Tab:AddSection({
 	Name = "MM2"
 })
 
