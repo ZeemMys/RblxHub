@@ -70,7 +70,7 @@ local Section = MM2Tab:AddSection({
 
 MM2Tab:AddButton({
 	Name = "X-ray",
-	Callback = function()
-      		.
-  	end    
+	Callback = function(value)
+      		game.Players.LocalCharacter.StarterGui.X-ray = value
+  	end
 })
