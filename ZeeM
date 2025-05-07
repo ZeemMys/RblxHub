@@ -59,7 +59,7 @@ local Slider = PlayerTab:CreateSlider({
 
  local Slider = PlayerTab:CreateSlider({
     Name = "Jump Height",
-    Range = {10, 500},
+    Range = {50, 500},
     Increment = 1,
     Suffix = "Height",
     CurrentValue = 10,
