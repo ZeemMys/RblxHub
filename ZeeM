@@ -110,3 +110,12 @@ local Slider = PlayerTab:CreateSlider({
     -- The variable (Options) is a table of strings for the current selected options
     end,
  })
+
+local Tab = Window:CreateTab("Credit", 4483362458)
+local Button = Tab:CreateButton({
+   Name = "Click To See What Happen:)",
+   Callback = function()
+       print("Thanks For Using Duckian Hub!")
+   -- The function that takes place when the button is pressed
+   end,
+})
