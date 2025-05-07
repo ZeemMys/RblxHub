@@ -120,110 +120,84 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local flySpeed = 50
-local flying = false
-local flyConnection = nil
+local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
 
--- Fly Speed Slider
-PlayerTab:CreateSlider({
+-- Thêm Fly Hack vào tab Player
+local Toggle = PlayerTab:CreateToggle({
+    Name = "Fly Hack",
+    CurrentValue = false,
+    Flag = "FlyToggle",
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoid = character:WaitForChild("Humanoid")
+        local rootPart = character:WaitForChild("HumanoidRootPart")
+        
+        if Value then
+            -- Bật chế độ bay
+            local flySpeed = 50
+            local bg = Instance.new("BodyGyro", rootPart)
+            bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+            bg.P = 10000
+            
+            local bv = Instance.new("BodyVelocity", rootPart)
+            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+            bv.Velocity = Vector3.new(0, 0, 0)
+            
+            humanoid.PlatformStand = true
+            
+            -- Kết nối sự kiện nhấn phím
+            local flyConnection
+            flyConnection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+                if gameProcessed then return end
+                
+                local direction = Vector3.new(0, 0, 0)
+                
+                if input.KeyCode == Enum.KeyCode.W then
+                    direction = direction + rootPart.CFrame.LookVector
+                elseif input.KeyCode == Enum.KeyCode.S then
+                    direction = direction - rootPart.CFrame.LookVector
+                elseif input.KeyCode == Enum.KeyCode.A then
+                    direction = direction - rootPart.CFrame.RightVector
+                elseif input.KeyCode == Enum.KeyCode.D then
+                    direction = direction + rootPart.CFrame.RightVector
+                elseif input.KeyCode == Enum.KeyCode.Space then
+                    direction = direction + Vector3.new(0, 1, 0)
+                elseif input.KeyCode == Enum.KeyCode.LeftShift then
+                    direction = direction + Vector3.new(0, -1, 0)
+                end
+                
+                bv.Velocity = direction * flySpeed
+            end)
+            
+            -- Lưu trữ các biến để có thể hủy sau
+            _G.FlyAssets = {
+                BodyGyro = bg,
+                BodyVelocity = bv,
+                Connection = flyConnection
+            }
+        else
+            -- Tắt chế độ bay
+            humanoid.PlatformStand = false
+            if _G.FlyAssets then
+                if _G.FlyAssets.BodyGyro then _G.FlyAssets.BodyGyro:Destroy() end
+                if _G.FlyAssets.BodyVelocity then _G.FlyAssets.BodyVelocity:Destroy() end
+                if _G.FlyAssets.Connection then _G.FlyAssets.Connection:Disconnect() end
+                _G.FlyAssets = nil
+            end
+        end
+    end,
+})
+
+-- Thêm Slider tốc độ bay
+local Slider = PlayerTab:CreateSlider({
     Name = "Fly Speed",
-    Range = {10, 200},
-    Increment = 1,
+    Range = {20, 200},
+    Increment = 5,
     Suffix = "Speed",
     CurrentValue = 50,
     Flag = "FlySpeedSlider",
     Callback = function(Value)
-        flySpeed = Value
+        _G.FlySpeed = Value
     end,
 })
-
--- Fly Toggle Button
-PlayerTab:CreateButton({
-    Name = "Toggle Fly (Bật/Tắt Bay)",
-    Callback = function()
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-
-        if not humanoidRootPart then return end
-
-        flying = not flying
-
-        if flying then
-            local bodyGyro = Instance.new("BodyGyro")
-            bodyGyro.P = 9e4
-            bodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
-            bodyGyro.cframe = humanoidRootPart.CFrame
-            bodyGyro.Parent = humanoidRootPart
-
-            local bodyVelocity = Instance.new("BodyVelocity")
-            bodyVelocity.velocity = Vector3.zero
-            bodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
-            bodyVelocity.Parent = humanoidRootPart
-
-            flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-                local cam = workspace.CurrentCamera
-                local direction = Vector3.new()
-                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
-                    direction += cam.CFrame.LookVector
-                end
-                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
-                    direction -= cam.CFrame.LookVector
-                end
-                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
-                    direction -= cam.CFrame.RightVector
-                end
-                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
-                    direction += cam.CFrame.RightVector
-                end
-                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
-                    direction += cam.CFrame.UpVector
-                end
-                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
-                    direction -= cam.CFrame.UpVector
-                end
-
-                bodyGyro.CFrame = cam.CFrame
-                bodyVelocity.Velocity = direction.Unit * flySpeed
-            end)
-        else
-            if flyConnection then flyConnection:Disconnect() end
-            if humanoidRootPart:FindFirstChild("BodyGyro") then humanoidRootPart.BodyGyro:Destroy() end
-            if humanoidRootPart:FindFirstChild("BodyVelocity") then humanoidRootPart.BodyVelocity:Destroy() end
-        end
-    end
-})
-
--- Tắt va chạm giữa các player để tránh bị đẩy (Anti-Push)
-local PhysicsService = game:GetService("PhysicsService")
-local Players = game:GetService("Players")
-
--- Tạo nhóm va chạm riêng cho người chơi
-local groupName = "NoPlayerCollision"
-pcall(function() PhysicsService:CreateCollisionGroup(groupName) end)
-PhysicsService:CollisionGroupSetCollidable(groupName, groupName, false)
-
-local function setCollisionGroup(character)
-    for _, part in ipairs(character:GetDescendants()) do
-        if part:IsA("BasePart") and part.CanCollide then
-            PhysicsService:SetPartCollisionGroup(part, groupName)
-        end
-    end
-end
-
--- Áp dụng khi người chơi vào game
-Players.PlayerAdded:Connect(function(player)
-    player.CharacterAdded:Connect(function(character)
-        -- Chờ nhân vật được tải hoàn toàn
-        character:WaitForChild("HumanoidRootPart", 5)
-        wait(1)
-        setCollisionGroup(character)
-    end)
-end)
-
--- Áp dụng ngay cho LocalPlayer (nếu đã vào)
-local localPlayer = Players.LocalPlayer
-if localPlayer.Character then
-    setCollisionGroup(localPlayer.Character)
-end
-localPlayer.CharacterAdded:Connect(setCollisionGroup)
