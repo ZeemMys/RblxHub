@@ -41,13 +41,17 @@ Tab:CreateButton({
         print("Hello from Rayfield!")
     end
 })
-Tab:CreateSlider({
+local Slider = Tab:CreateSlider({
     Name = "Speed",
-    Range = {16, 200}, -- 16 là mặc định, 200 là tối đa
+    Range = {16, 200}, -- Tốc độ từ 16 (mặc định) đến 200
     Increment = 1,
     Suffix = "Speed",
     CurrentValue = 16,
+    Flag = "WalkSpeedSlider",
     Callback = function(Value)
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+       local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+       if humanoid then
+          humanoid.WalkSpeed = Value
+       end
     end,
-})
+ }) 
