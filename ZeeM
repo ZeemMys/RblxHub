@@ -120,6 +120,80 @@ local Button = Tab:CreateButton({
    end,
 })
 
+local flySpeed = 50
+local flying = false
+local flyConnection = nil
+
+-- Fly Speed Slider
+PlayerTab:CreateSlider({
+    Name = "Fly Speed",
+    Range = {10, 200},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = 50,
+    Flag = "FlySpeedSlider",
+    Callback = function(Value)
+        flySpeed = Value
+    end,
+})
+
+-- Fly Toggle Button
+PlayerTab:CreateButton({
+    Name = "Toggle Fly (Bật/Tắt Bay)",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+
+        if not humanoidRootPart then return end
+
+        flying = not flying
+
+        if flying then
+            local bodyGyro = Instance.new("BodyGyro")
+            bodyGyro.P = 9e4
+            bodyGyro.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+            bodyGyro.cframe = humanoidRootPart.CFrame
+            bodyGyro.Parent = humanoidRootPart
+
+            local bodyVelocity = Instance.new("BodyVelocity")
+            bodyVelocity.velocity = Vector3.zero
+            bodyVelocity.maxForce = Vector3.new(9e9, 9e9, 9e9)
+            bodyVelocity.Parent = humanoidRootPart
+
+            flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                local cam = workspace.CurrentCamera
+                local direction = Vector3.new()
+                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+                    direction += cam.CFrame.LookVector
+                end
+                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+                    direction -= cam.CFrame.LookVector
+                end
+                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+                    direction -= cam.CFrame.RightVector
+                end
+                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+                    direction += cam.CFrame.RightVector
+                end
+                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+                    direction += cam.CFrame.UpVector
+                end
+                if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
+                    direction -= cam.CFrame.UpVector
+                end
+
+                bodyGyro.CFrame = cam.CFrame
+                bodyVelocity.Velocity = direction.Unit * flySpeed
+            end)
+        else
+            if flyConnection then flyConnection:Disconnect() end
+            if humanoidRootPart:FindFirstChild("BodyGyro") then humanoidRootPart.BodyGyro:Destroy() end
+            if humanoidRootPart:FindFirstChild("BodyVelocity") then humanoidRootPart.BodyVelocity:Destroy() end
+        end
+    end
+})
+
 -- Tắt va chạm giữa các player để tránh bị đẩy (Anti-Push)
 local PhysicsService = game:GetService("PhysicsService")
 local Players = game:GetService("Players")
