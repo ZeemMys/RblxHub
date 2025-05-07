@@ -119,3 +119,37 @@ local Button = Tab:CreateButton({
    -- The function that takes place when the button is pressed
    end,
 })
+
+-- Tắt va chạm giữa các player để tránh bị đẩy (Anti-Push)
+local PhysicsService = game:GetService("PhysicsService")
+local Players = game:GetService("Players")
+
+-- Tạo nhóm va chạm riêng cho người chơi
+local groupName = "NoPlayerCollision"
+pcall(function() PhysicsService:CreateCollisionGroup(groupName) end)
+PhysicsService:CollisionGroupSetCollidable(groupName, groupName, false)
+
+local function setCollisionGroup(character)
+    for _, part in ipairs(character:GetDescendants()) do
+        if part:IsA("BasePart") and part.CanCollide then
+            PhysicsService:SetPartCollisionGroup(part, groupName)
+        end
+    end
+end
+
+-- Áp dụng khi người chơi vào game
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        -- Chờ nhân vật được tải hoàn toàn
+        character:WaitForChild("HumanoidRootPart", 5)
+        wait(1)
+        setCollisionGroup(character)
+    end)
+end)
+
+-- Áp dụng ngay cho LocalPlayer (nếu đã vào)
+local localPlayer = Players.LocalPlayer
+if localPlayer.Character then
+    setCollisionGroup(localPlayer.Character)
+end
+localPlayer.CharacterAdded:Connect(setCollisionGroup)
