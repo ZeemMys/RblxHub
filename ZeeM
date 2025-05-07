@@ -120,84 +120,121 @@ local Button = Tab:CreateButton({
    end,
 })
 
-local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
+-- WalkSpeed Toggle + Slider
+local WalkEnabled = false
+local DefaultWalkSpeed = 16
+local WalkSpeedValue = DefaultWalkSpeed
 
--- Thêm Fly Hack vào tab Player
-local Toggle = PlayerTab:CreateToggle({
-    Name = "Fly Hack",
+PlayerTab:CreateToggle({
+    Name = "Toggle WalkSpeed",
     CurrentValue = false,
-    Flag = "FlyToggle",
     Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local character = player.Character or player.CharacterAdded:Wait()
-        local humanoid = character:WaitForChild("Humanoid")
-        local rootPart = character:WaitForChild("HumanoidRootPart")
-        
-        if Value then
-            -- Bật chế độ bay
-            local flySpeed = 50
-            local bg = Instance.new("BodyGyro", rootPart)
-            bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-            bg.P = 10000
-            
-            local bv = Instance.new("BodyVelocity", rootPart)
-            bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            bv.Velocity = Vector3.new(0, 0, 0)
-            
-            humanoid.PlatformStand = true
-            
-            -- Kết nối sự kiện nhấn phím
-            local flyConnection
-            flyConnection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-                if gameProcessed then return end
-                
-                local direction = Vector3.new(0, 0, 0)
-                
-                if input.KeyCode == Enum.KeyCode.W then
-                    direction = direction + rootPart.CFrame.LookVector
-                elseif input.KeyCode == Enum.KeyCode.S then
-                    direction = direction - rootPart.CFrame.LookVector
-                elseif input.KeyCode == Enum.KeyCode.A then
-                    direction = direction - rootPart.CFrame.RightVector
-                elseif input.KeyCode == Enum.KeyCode.D then
-                    direction = direction + rootPart.CFrame.RightVector
-                elseif input.KeyCode == Enum.KeyCode.Space then
-                    direction = direction + Vector3.new(0, 1, 0)
-                elseif input.KeyCode == Enum.KeyCode.LeftShift then
-                    direction = direction + Vector3.new(0, -1, 0)
-                end
-                
-                bv.Velocity = direction * flySpeed
-            end)
-            
-            -- Lưu trữ các biến để có thể hủy sau
-            _G.FlyAssets = {
-                BodyGyro = bg,
-                BodyVelocity = bv,
-                Connection = flyConnection
-            }
-        else
-            -- Tắt chế độ bay
-            humanoid.PlatformStand = false
-            if _G.FlyAssets then
-                if _G.FlyAssets.BodyGyro then _G.FlyAssets.BodyGyro:Destroy() end
-                if _G.FlyAssets.BodyVelocity then _G.FlyAssets.BodyVelocity:Destroy() end
-                if _G.FlyAssets.Connection then _G.FlyAssets.Connection:Disconnect() end
-                _G.FlyAssets = nil
+        WalkEnabled = Value
+        local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.WalkSpeed = Value and WalkSpeedValue or DefaultWalkSpeed
+        end
+    end,
+})
+
+PlayerTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {16, 100},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = DefaultWalkSpeed,
+    Callback = function(Value)
+        WalkSpeedValue = Value
+        if WalkEnabled then
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = Value
             end
         end
     end,
 })
 
--- Thêm Slider tốc độ bay
-local Slider = PlayerTab:CreateSlider({
+-- JumpPower Toggle + Slider
+local JumpEnabled = false
+local DefaultJumpPower = 50
+local JumpPowerValue = DefaultJumpPower
+
+PlayerTab:CreateToggle({
+    Name = "Toggle JumpPower",
+    CurrentValue = false,
+    Callback = function(Value)
+        JumpEnabled = Value
+        local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid.JumpPower = Value and JumpPowerValue or DefaultJumpPower
+        end
+    end,
+})
+
+PlayerTab:CreateSlider({
+    Name = "JumpPower",
+    Range = {50, 500},
+    Increment = 1,
+    Suffix = "Power",
+    CurrentValue = DefaultJumpPower,
+    Callback = function(Value)
+        JumpPowerValue = Value
+        if JumpEnabled then
+            local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.JumpPower = Value
+            end
+        end
+    end,
+})
+
+-- Fly Toggle + FlySpeed
+local flying = false
+local flySpeed = 50
+local flyConnection
+
+PlayerTab:CreateSlider({
     Name = "Fly Speed",
-    Range = {20, 200},
-    Increment = 5,
+    Range = {10, 200},
+    Increment = 1,
     Suffix = "Speed",
     CurrentValue = 50,
-    Flag = "FlySpeedSlider",
     Callback = function(Value)
-        _G.FlySpeed = Value
+        flySpeed = Value
+    end,
+})
+
+PlayerTab:CreateToggle({
+    Name = "Toggle Fly",
+    CurrentValue = false,
+    Callback = function(Value)
+        flying = Value
+        local player = game.Players.LocalPlayer
+        local character = player.Character or player.CharacterAdded:Wait()
+        local hrp = character:WaitForChild("HumanoidRootPart")
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        local UIS = game:GetService("UserInputService")
+        local RunService = game:GetService("RunService")
+        
+        if flying then
+            humanoid.PlatformStand = true
+            flyConnection = RunService.RenderStepped:Connect(function()
+                local cam = workspace.CurrentCamera
+                local moveDirection = Vector3.new()
+                if UIS:IsKeyDown(Enum.KeyCode.W) then moveDirection += cam.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.S) then moveDirection -= cam.CFrame.LookVector end
+                if UIS:IsKeyDown(Enum.KeyCode.A) then moveDirection -= cam.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.D) then moveDirection += cam.CFrame.RightVector end
+                if UIS:IsKeyDown(Enum.KeyCode.Space) then moveDirection += cam.CFrame.UpVector end
+                if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then moveDirection -= cam.CFrame.UpVector end
+
+                hrp.Velocity = moveDirection.Unit * flySpeed
+            end)
+        else
+            humanoid.PlatformStand = false
+            if flyConnection then
+                flyConnection:Disconnect()
+            end
+        end
     end,
 })
