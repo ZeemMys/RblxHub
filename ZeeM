@@ -81,6 +81,31 @@ local Slider = PlayerTab:CreateSlider({
     MultipleOptions = false,
     Flag = "DropDown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
     Callback = function(Options)
+        local Dropdown = Tab:CreateDropdown({
+            Name = "Select Area",
+            Options = {"Summon", "Play", "Raid", "Boss Rush", "Challenge"},
+            CurrentOption = {"Summon"},
+            MultipleOptions = false,
+            Flag = "DropDown1",
+            Callback = function(Options)
+                local selected = Options[1]
+                local teleportTable = {
+                    ["Summon"] = workspace:FindFirstChild("Summon"),
+                    ["Play"] = workspace:FindFirstChild("Play"),
+                    ["Raid"] = workspace:FindFirstChild("Raid"),
+                    ["Boss Rush"] = workspace:FindFirstChild("BossRush"),
+                    ["Challenge"] = workspace:FindFirstChild("Challenge")
+                }
+        
+                local destination = teleportTable[selected]
+                if destination and destination:IsA("BasePart") then
+                    game.Players.LocalPlayer.Character:MoveTo(destination.Position)
+                else
+                    warn("Không tìm thấy vị trí cho: " .. selected)
+                end
+            end,
+        })
+        
     -- The function that takes place when the selected option is changed
     -- The variable (Options) is a table of strings for the current selected options
     end,
