@@ -12,8 +12,8 @@ local Window = Rayfield:CreateWindow({
  
     ConfigurationSaving = {
        Enabled = true,
-       FolderName = Duckian, -- Create a custom folder for your hub/game
-       FileName = "Duckian Hub"
+       FolderName = Duckian Hub, -- Create a custom folder for your hub/game
+       FileName = "Duckian"
     },
  
     Discord = {
