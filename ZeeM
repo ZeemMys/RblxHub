@@ -35,3 +35,9 @@ local Window = Rayfield:CreateWindow({
  })
 
 local Tab = Window:CreateTab("Main", 4483362458) -- Title, Image
+Tab:CreateButton({
+    Name = "Click me!",
+    Callback = function()
+        print("Hello from Rayfield!")
+    end
+})
