@@ -41,17 +41,14 @@ Tab:CreateButton({
         print("Hello from Rayfield!")
     end
 })
-local Slider = Tab:CreateSlider({
-    Name = "Speed",
-    Range = {16, 200}, -- Tốc độ từ 16 (mặc định) đến 200
+local Slider = PlayerTab:CreateSlider({
+    Name = "WalkSpeed",
+    Range = {16, 100},
     Increment = 1,
     Suffix = "Speed",
     CurrentValue = 16,
-    Flag = "WalkSpeedSlider",
+    Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
     Callback = function(Value)
-       local humanoid = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-       if humanoid then
-          humanoid.WalkSpeed = Value
-       end
+     game.Players.LocalPlayer.Character:SetAttribute("SpeedMultiplier", Value)
     end,
  }) 
