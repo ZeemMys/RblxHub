@@ -201,8 +201,7 @@ PlayerTab:CreateSlider({
     CurrentValue = 50,
     Callback = function(Value)
         flySpeed = Value
-    end,
-})
+    en
 
 PlayerTab:CreateToggle({
     Name = "Toggle Fly",
