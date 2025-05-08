@@ -108,7 +108,7 @@ local DefaultWalkSpeed = 16
 local WalkSpeedValue = DefaultWalkSpeed
 
 PlayerTab:CreateToggle({
-    Name = "Toggle WalkSpeed",
+    Name = "Chạy Nhanh",
     CurrentValue = false,
     Callback = function(Value)
         WalkEnabled = Value
@@ -142,7 +142,7 @@ local DefaultJumpPower = 50
 local JumpPowerValue = DefaultJumpPower
 
 PlayerTab:CreateToggle({
-    Name = "Toggle JumpPower",
+    Name = "Sức Mạnh Nhảy",
     CurrentValue = false,
     Callback = function(Value)
         JumpEnabled = Value
@@ -277,7 +277,7 @@ local function disableFly()
 end
 
 PlayerTab:CreateToggle({
-    Name = "Toggle Fly",
+    Name = "Bay",
     CurrentValue = false,
     Callback = function(Value)
         flying = Value
