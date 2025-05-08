@@ -19,7 +19,7 @@ local Window = Rayfield:CreateWindow({
     Discord = {
        Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
        Invite = "https://discord.gg/PnHj485p", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-       RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+       RememberJoins = false -- Set this to false to make them join the discord every time they load it up
     },
  
     KeySystem = true, -- Set this to true to use our key system
@@ -228,43 +228,4 @@ PlayerTab:CreateToggle({
 			end
 		end
 	end,
-})
-
-local flying = false
-local flySpeed = 60
-local flyConnection
-
--- Hàm bật/tắt Fly
-local function toggleFly(state)
-    flying = state
-    local player = game.Players.LocalPlayer
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-    local humanoid = char:WaitForChild("Humanoid")
-
-    if flying then
-        humanoid.PlatformStand = true -- Ngăn nhảy/rớt
-        flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-            if hrp then
-                hrp.Velocity = Vector3.new(0, flySpeed, 0) -- Bay lên theo Y
-            end
-        end)
-    else
-        if flyConnection then
-            flyConnection:Disconnect()
-            flyConnection = nil
-        end
-        humanoid.PlatformStand = false
-        if hrp then
-            hrp.Velocity = Vector3.zero
-        end
-    end
-end
-
-PlayerTab:CreateToggle({
-    Name = "Fly (Mobile Support)",
-    CurrentValue = false,
-    Callback = function(Value)
-        toggleFly(Value)
-    end,
 })
