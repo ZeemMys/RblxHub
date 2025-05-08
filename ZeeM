@@ -84,11 +84,14 @@ local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
  })
 
 local Tab = Window:CreateTab("Credit", 4483362458)
+
 local Button = Tab:CreateButton({
    Name = "Click To See What Happen:)",
    Callback = function()
-       print("Thanks For Using Duckian Hub!")
-   -- The function that takes place when the button is pressed
+       local player = game.Players.LocalPlayer
+       if player and player.Character then
+           player.Character:BreakJoints() -- Reset nhân vật
+       end
    end,
 })
 
