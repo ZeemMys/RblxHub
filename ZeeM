@@ -171,9 +171,16 @@ PlayerTab:CreateToggle({
 
         if Value then
             afConnection = game:GetService("RunService").Stepped:Connect(function()
-                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    hrp.Velocity = Vector3.zero
+                local char = game.Players.LocalPlayer.Character
+                if not char then return end
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                if not hrp then return end
+
+                -- Giới hạn Velocity và RotVelocity nếu vượt quá mức bình thường
+                if hrp.Velocity.Magnitude > 100 then
+                    hrp.Velocity = hrp.Velocity.Unit * 100
+                end
+                if hrp.RotVelocity.Magnitude > 100 then
                     hrp.RotVelocity = Vector3.zero
                 end
             end)
