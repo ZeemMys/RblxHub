@@ -248,7 +248,9 @@ local function enableFly()
 
     flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
         if flying then
-            hrp.Velocity = Vector3.new(0, flySpeed, 0)
+            local camera = workspace.CurrentCamera
+            local direction = Vector3.new(0, 0, 0)
+            hrp.Velocity = Vector3.new(direction.X, hrp.Velocity.Y, direction.Z)
         end
     end)
 end
@@ -281,11 +283,37 @@ PlayerTab:CreateSlider({
     CurrentValue = flySpeed,
     Callback = function(Value)
         flySpeed = Value
-        if flying then
-            local player = game.Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local hrp = character:WaitForChild("HumanoidRootPart")
-            hrp.Velocity = Vector3.new(0, flySpeed, 0)
-        end
     end,
 })
+
+-- Di chuyển bằng phím ảo
+local UserInputService = game:GetService("UserInputService")
+local remoteControlEnabled = false
+
+-- Giả lập phím ảo
+local function moveFly(direction)
+    local player = game.Players.LocalPlayer
+    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+    if hrp then
+        hrp.Velocity = direction * flySpeed
+    end
+end
+
+UserInputService.InputBegan:Connect(function(input, processed)
+    if flying and not processed then
+        local direction = Vector3.new(0, 0, 0)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            -- Xử lý phím ảo
+            -- Thêm logic để nhận diện các nút ảo
+            -- Ví dụ: nếu có nút "Tiến" thì di chuyển tới trước
+            -- direction = workspace.CurrentCamera.CFrame.LookVector
+        end
+        moveFly(direction)
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if flying then
+        moveFly(Vector3.new(0, 0, 0)) -- Dừng di chuyển khi nhả phím
+    end
+end)
