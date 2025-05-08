@@ -236,3 +236,56 @@ PlayerTab:CreateToggle({
 		end
 	end,
 })
+
+local flying = false
+local flySpeed = 50
+local flyConnection
+
+local function enableFly()
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+
+    flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if flying then
+            hrp.Velocity = Vector3.new(0, flySpeed, 0)
+        end
+    end)
+end
+
+local function disableFly()
+    if flyConnection then
+        flyConnection:Disconnect()
+        flyConnection = nil
+    end
+end
+
+PlayerTab:CreateToggle({
+    Name = "Toggle Fly",
+    CurrentValue = false,
+    Callback = function(Value)
+        flying = Value
+        if flying then
+            enableFly()
+        else
+            disableFly()
+        end
+    end,
+})
+
+PlayerTab:CreateSlider({
+    Name = "Fly Speed",
+    Range = {50, 200},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = flySpeed,
+    Callback = function(Value)
+        flySpeed = Value
+        if flying then
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local hrp = character:WaitForChild("HumanoidRootPart")
+            hrp.Velocity = Vector3.new(0, flySpeed, 0)
+        end
+    end,
+})
