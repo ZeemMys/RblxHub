@@ -18,7 +18,7 @@ local Window = Rayfield:CreateWindow({
  
     Discord = {
        Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
-       Invite = "https://discord.gg/PnHj485p", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
+       Invite = "PnHj485p", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
        RememberJoins = false -- Set this to false to make them join the discord every time they load it up
     },
  
@@ -250,7 +250,21 @@ local function enableFly()
         if flying then
             local camera = workspace.CurrentCamera
             local direction = Vector3.new(0, 0, 0)
-            hrp.Velocity = Vector3.new(direction.X, hrp.Velocity.Y, direction.Z)
+
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                direction = direction + camera.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                direction = direction - camera.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                direction = direction - camera.CFrame.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                direction = direction + camera.CFrame.RightVector
+            end
+
+            hrp.Velocity = Vector3.new(direction.X * flySpeed, hrp.Velocity.Y, direction.Z * flySpeed)
         end
     end)
 end
@@ -286,34 +300,4 @@ PlayerTab:CreateSlider({
     end,
 })
 
--- Di chuyển bằng phím ảo
 local UserInputService = game:GetService("UserInputService")
-local remoteControlEnabled = false
-
--- Giả lập phím ảo
-local function moveFly(direction)
-    local player = game.Players.LocalPlayer
-    local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-    if hrp then
-        hrp.Velocity = direction * flySpeed
-    end
-end
-
-UserInputService.InputBegan:Connect(function(input, processed)
-    if flying and not processed then
-        local direction = Vector3.new(0, 0, 0)
-        if input.UserInputType == Enum.UserInputType.Touch then
-            -- Xử lý phím ảo
-            -- Thêm logic để nhận diện các nút ảo
-            -- Ví dụ: nếu có nút "Tiến" thì di chuyển tới trước
-            -- direction = workspace.CurrentCamera.CFrame.LookVector
-        end
-        moveFly(direction)
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-    if flying then
-        moveFly(Vector3.new(0, 0, 0)) -- Dừng di chuyển khi nhả phím
-    end
-end)
