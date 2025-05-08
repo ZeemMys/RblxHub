@@ -38,7 +38,7 @@ Rayfield:Notify({
    Title = "XIN THÔNG BÁO",
    Content = "PHIÊN BẢN FREE",
    Duration = 6.5,
-   Image = 4483362458,
+   Image = "rewind",
 })
 
 local Tab = Window:CreateTab("Main", 4483362458) -- Title, Image
