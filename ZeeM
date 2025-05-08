@@ -230,6 +230,35 @@ PlayerTab:CreateToggle({
 	end,
 })
 
+local flying = false
+local flySpeed = 50
+local flyConnection = nil
+
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("RunService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local char = player.Character or player.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
+
+local moveVector = Vector3.zero
+
+-- Cập nhật moveVector theo input từ bàn phím
+UIS.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.W then moveVector = moveVector + Vector3.new(0, 0, -1) end
+    if input.KeyCode == Enum.KeyCode.S then moveVector = moveVector + Vector3.new(0, 0, 1) end
+    if input.KeyCode == Enum.KeyCode.A then moveVector = moveVector + Vector3.new(-1, 0, 0) end
+    if input.KeyCode == Enum.KeyCode.D then moveVector = moveVector + Vector3.new(1, 0, 0) end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.W then moveVector = moveVector - Vector3.new(0, 0, -1) end
+    if input.KeyCode == Enum.KeyCode.S then moveVector = moveVector - Vector3.new(0, 0, 1) end
+    if input.KeyCode == Enum.KeyCode.A then moveVector = moveVector - Vector3.new(-1, 0, 0) end
+    if input.KeyCode == Enum.KeyCode.D then moveVector = moveVector - Vector3.new(1, 0, 0) end
+end)
+
 PlayerTab:CreateSlider({
 	Name = "Fly Speed",
 	Range = {10, 150},
@@ -247,11 +276,15 @@ PlayerTab:CreateToggle({
 	CurrentValue = false,
 	Callback = function(Value)
 		flying = Value
+		char = player.Character or player.CharacterAdded:Wait()
+		hrp = char:WaitForChild("HumanoidRootPart")
 
 		if flying then
 			flyConnection = RS.RenderStepped:Connect(function()
-				if char and hrp and moveVector.Magnitude > 0 then
-					hrp.Velocity = hrp.CFrame:VectorToWorldSpace(moveVector.Unit * flySpeed)
+				if moveVector.Magnitude > 0 then
+					local camCF = workspace.CurrentCamera.CFrame
+					local direction = (camCF:VectorToWorldSpace(moveVector)).Unit
+					hrp.Velocity = direction * flySpeed
 				else
 					hrp.Velocity = Vector3.zero
 				end
