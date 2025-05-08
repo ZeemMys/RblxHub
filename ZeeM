@@ -159,3 +159,29 @@ PlayerTab:CreateSlider({
         end
     end,
 })
+
+local AntiFlingEnabled = false
+local afConnection = nil
+
+PlayerTab:CreateToggle({
+    Name = "Anti-Fling",
+    CurrentValue = false,
+    Callback = function(Value)
+        AntiFlingEnabled = Value
+
+        if Value then
+            afConnection = game:GetService("RunService").Stepped:Connect(function()
+                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    hrp.Velocity = Vector3.zero
+                    hrp.RotVelocity = Vector3.zero
+                end
+            end)
+        else
+            if afConnection then
+                afConnection:Disconnect()
+                afConnection = nil
+            end
+        end
+    end,
+})
