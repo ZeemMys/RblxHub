@@ -327,7 +327,6 @@ local function disableAimbot()
     removeMarker()
 end
 
-
 PlayerTab:CreateToggle({
     Name = "Auto Aimbot",
     CurrentValue = false,
