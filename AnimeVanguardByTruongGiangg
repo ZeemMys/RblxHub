@@ -237,6 +237,79 @@ PlayerTab:CreateToggle({
 	end,
 })
 
+-- Auto Aimbot
+local AimbotEnabled = false
+local AimbotFOV = 100
+
+-- Hàm tìm đối tượng gần nhất trong FOV
+local function GetNearestTarget()
+    local players = game:GetService("Players")
+    local localPlayer = players.LocalPlayer
+    local camera = workspace.CurrentCamera
+    local nearest = nil
+    local shortestDistance = AimbotFOV
+
+    for _, player in ipairs(players:GetPlayers()) do
+        if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local pos, onScreen = camera:WorldToViewportPoint(player.Character.HumanoidRootPart.Position)
+            if onScreen then
+                local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    nearest = player
+                end
+            end
+        end
+    end
+
+    return nearest
+end
+
+-- Aimbot logic
+local aimbotConnection
+local function enableAimbot()
+    aimbotConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if not AimbotEnabled then return end
+
+        local target = GetNearestTarget()
+        if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+            local camera = workspace.CurrentCamera
+            camera.CFrame = CFrame.new(camera.CFrame.Position, target.Character.HumanoidRootPart.Position)
+        end
+    end)
+end
+
+local function disableAimbot()
+    if aimbotConnection then
+        aimbotConnection:Disconnect()
+        aimbotConnection = nil
+    end
+end
+
+PlayerTab:CreateToggle({
+    Name = "Auto Aimbot",
+    CurrentValue = false,
+    Callback = function(Value)
+        AimbotEnabled = Value
+        if Value then
+            enableAimbot()
+        else
+            disableAimbot()
+        end
+    end,
+})
+
+PlayerTab:CreateSlider({
+    Name = "Aimbot FOV",
+    Range = {20, 500},
+    Increment = 10,
+    Suffix = "px",
+    CurrentValue = AimbotFOV,
+    Callback = function(Value)
+        AimbotFOV = Value
+    end,
+})
+
 local flying = false
 local flySpeed = 50
 local flyConnection
@@ -264,7 +337,7 @@ local function enableFly()
                 direction = direction + camera.CFrame.RightVector
             end
 
-            hrp.Velocity = Vector3.new(direction.X * flySpeed, hrp.Velocity.Y, direction.Z * flySpeed)
+            hrp.Velocity = Vector3.new(direction.X * flySpeed, flySpeed, direction.Z * flySpeed)
         end
     end)
 end
@@ -277,7 +350,7 @@ local function disableFly()
 end
 
 PlayerTab:CreateToggle({
-    Name = "Bay",
+    Name = "Toggle Fly",
     CurrentValue = false,
     Callback = function(Value)
         flying = Value
