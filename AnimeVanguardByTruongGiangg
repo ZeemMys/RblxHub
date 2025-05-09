@@ -240,6 +240,34 @@ PlayerTab:CreateToggle({
 -- Auto Aimbot
 local AimbotEnabled = false
 local AimbotFOV = 100
+local currentTarget = nil
+local marker = nil
+
+-- Hàm tạo chấm xanh
+local function createMarker(targetPart)
+    if marker then marker:Destroy() end
+
+    marker = Instance.new("BillboardGui")
+    marker.Name = "AimbotMarker"
+    marker.AlwaysOnTop = true
+    marker.Size = UDim2.new(0, 12, 0, 12)
+    marker.Adornee = targetPart
+    marker.Parent = targetPart
+
+    local dot = Instance.new("Frame")
+    dot.Size = UDim2.new(1, 0, 1, 0)
+    dot.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    dot.BorderSizePixel = 0
+    dot.BackgroundTransparency = 0.1
+    dot.Parent = marker
+end
+
+local function removeMarker()
+    if marker then
+        marker:Destroy()
+        marker = nil
+    end
+end
 
 -- Hàm tìm đối tượng gần nhất trong FOV
 local function GetNearestTarget()
@@ -275,6 +303,16 @@ local function enableAimbot()
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
             local camera = workspace.CurrentCamera
             camera.CFrame = CFrame.new(camera.CFrame.Position, target.Character.HumanoidRootPart.Position)
+
+            -- Tạo chấm xanh nếu đổi mục tiêu
+            if target ~= currentTarget then
+                currentTarget = target
+                createMarker(target.Character.HumanoidRootPart)
+            end
+        else
+            -- Không còn mục tiêu
+            currentTarget = nil
+            removeMarker()
         end
     end)
 end
@@ -284,6 +322,8 @@ local function disableAimbot()
         aimbotConnection:Disconnect()
         aimbotConnection = nil
     end
+    currentTarget = nil
+    removeMarker()
 end
 
 PlayerTab:CreateToggle({
