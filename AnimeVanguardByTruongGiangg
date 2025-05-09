@@ -295,22 +295,25 @@ end
 
 local aimbotConnection
 local function enableAimbot()
-    local cam = workspace.CurrentCamera
-    if cam then
-        cam.CameraType = Enum.CameraType.Scriptable
-    end
-
     aimbotConnection = game:GetService("RunService").RenderStepped:Connect(function()
+        if not AimbotEnabled then return end
+
         local target = GetNearestTarget()
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
             local camera = workspace.CurrentCamera
-            camera.CFrame = CFrame.new(camera.CFrame.Position, target.Character.HumanoidRootPart.Position)
-
+            -- Tạo một vị trí mới camera sẽ luôn hướng về mục tiêu
+            local targetPosition = target.Character.HumanoidRootPart.Position
+            local cameraPosition = camera.CFrame.Position
+            local direction = (targetPosition - cameraPosition).unit
+            -- Điều chỉnh camera để luôn nhìn vào mục tiêu
+            camera.CFrame = CFrame.new(cameraPosition, targetPosition)
+            
             if target ~= currentTarget then
                 currentTarget = target
                 createMarker(target.Character.HumanoidRootPart)
             end
         else
+            -- Không có mục tiêu
             if currentTarget then
                 currentTarget = nil
                 removeMarker()
@@ -325,10 +328,10 @@ local function disableAimbot()
         aimbotConnection = nil
     end
 
+    -- Reset camera và loại bỏ marker
     currentTarget = nil
     removeMarker()
 
-    -- Reset camera để không còn khoá góc nhìn
     local cam = workspace.CurrentCamera
     if cam then
         cam.CameraType = Enum.CameraType.Custom
