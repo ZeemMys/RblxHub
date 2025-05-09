@@ -170,75 +170,96 @@ PlayerTab:CreateSlider({
     end,
 })
 
-local flingConnection = nil
-local AntiFlingEnabled = false
-local afConnection = nil
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
-local function disableAntiFling()
-    if AntiFlingEnabled and afConnection then
-        afConnection:Disconnect()
-        afConnection = nil
-        AntiFlingEnabled = false
-    end
-end
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local HRP = Character:WaitForChild("HumanoidRootPart")
 
--- Fling Toggle
-PlayerTab:CreateToggle({
-    Name = "Fling Mode",
-    CurrentValue = false,
-    Callback = function(Value)
-        local player = game.Players.LocalPlayer
-        local char = player.Character or player.CharacterAdded:Wait()
-        local hrp = char:FindFirstChild("HumanoidRootPart")
+local flingEnabled = false
+local flingForce = 100000  -- Sức mạnh đẩy
+local rotationSpeed = 50   -- Tốc độ quay để gây va chạm
 
-        if Value then
-            -- Tắt Anti-Fling nếu đang bật
-            disableAntiFling() 
-            
-            if hrp then
-                hrp.CFrame = hrp.CFrame + Vector3.new(0, 5, 0) -- Nhấc nhân vật lên để tránh vấn đề bị kẹt
-                flingConnection = game:GetService("RunService").Stepped:Connect(function()
-                    hrp.Velocity = Vector3.new(100, 0, 100) -- Áp dụng lực fling
-                    hrp.RotVelocity = Vector3.new(0, 999999, 0) -- Lực quay xoay nhân vật
-                end)
-            end
-        else
-            if flingConnection then
-                flingConnection:Disconnect() -- Tắt fling khi không muốn fling nữa
-                flingConnection = nil
-                if hrp then
-                    hrp.Velocity = Vector3.zero -- Đặt vận tốc về không
-                    hrp.RotVelocity = Vector3.zero -- Đặt vận tốc quay về không
+local function startFling()
+    flingEnabled = true
+    local BodyAngularVelocity = Instance.new("BodyAngularVelocity")
+    BodyAngularVelocity.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    BodyAngularVelocity.P = math.huge
+    BodyAngularVelocity.AngularVelocity = Vector3.new(0, rotationSpeed, 0)
+    BodyAngularVelocity.Name = "FlingSpin"
+    BodyAngularVelocity.Parent = HRP
+
+    -- Theo dõi người chơi để đẩy
+    RunService.Heartbeat:Connect(function()
+        if not flingEnabled then return end
+        for _, target in pairs(Players:GetPlayers()) do
+            if target ~= LocalPlayer and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
+                local targetHRP = target.Character.HumanoidRootPart
+                local distance = (HRP.Position - targetHRP.Position).Magnitude
+                if distance < 5 then
+                    local direction = (targetHRP.Position - HRP.Position).Unit
+                    targetHRP.Velocity = direction * flingForce
                 end
             end
+        end
+    end)
+end
+
+local function stopFling()
+    flingEnabled = false
+    local spin = HRP:FindFirstChild("FlingSpin")
+    if spin then spin:Destroy() end
+end
+
+-- Thêm vào nút toggle
+PlayerTab:CreateToggle({
+    Name = "Fling người chơi",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then
+            startFling()
+        else
+            stopFling()
         end
     end,
 })
 
--- Anti-Fling Toggle
-PlayerTab:CreateToggle({
-    Name = "Anti-Fling",
+local AntiFlingEnabled = false
+local AntiFlingConnection
+
+Tab:CreateToggle({
+    Name = "Anti Fling",
     CurrentValue = false,
+    Flag = "AntiFlingToggle",
     Callback = function(Value)
         AntiFlingEnabled = Value
 
-        if Value then
-            -- Ngăn không cho nhân vật bị fling bằng cách đặt vận tốc về 0 mỗi bước
-            if flingConnection then
-                disableAntiFling() -- Tắt Fling Mode nếu Anti-Fling bật
-            end
+        if AntiFlingEnabled then
+            AntiFlingConnection = game:GetService("RunService").Heartbeat:Connect(function()
+                for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                        local hrp = player.Character.HumanoidRootPart
+                        for _, child in pairs(hrp:GetChildren()) do
+                            if (child:IsA("BodyVelocity") or child:IsA("BodyAngularVelocity")) then
+                                child:Destroy()
+                            end
+                        end
+                    end
+                end
 
-            afConnection = game:GetService("RunService").Stepped:Connect(function()
-                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    hrp.Velocity = Vector3.zero -- Đặt vận tốc về 0 để ngăn fling
-                    hrp.RotVelocity = Vector3.zero -- Đặt vận tốc quay về 0
+                local char = game.Players.LocalPlayer.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    local hrp = char.HumanoidRootPart
+                    if hrp.Velocity.Magnitude > 100 then
+                        hrp.Velocity = Vector3.zero
+                    end
                 end
             end)
         else
-            if afConnection then
-                afConnection:Disconnect() -- Ngừng Anti-Fling khi không còn bật
-                afConnection = nil
+            if AntiFlingConnection then
+                AntiFlingConnection:Disconnect()
+                AntiFlingConnection = nil
             end
         end
     end,
@@ -437,3 +458,87 @@ PlayerTab:CreateSlider({
         end
     end,
 })
+
+local ESPEnabled = false
+local ESPObjects = {}
+
+function createESP(player)
+    if player == game.Players.LocalPlayer then return end
+    local character = player.Character
+    if not character then return end
+
+    local box = Instance.new("BoxHandleAdornment")
+    box.Name = "ESPBox"
+    box.Size = Vector3.new(2, 5, 1)
+    box.Color3 = Color3.fromRGB(0, 255, 0)
+    box.Transparency = 0.5
+    box.Adornee = character:FindFirstChild("HumanoidRootPart")
+    box.AlwaysOnTop = true
+    box.ZIndex = 5
+    box.Parent = character
+
+    local nameTag = Instance.new("BillboardGui")
+    nameTag.Name = "ESPName"
+    nameTag.Size = UDim2.new(0, 100, 0, 40)
+    nameTag.StudsOffset = Vector3.new(0, 3, 0)
+    nameTag.Adornee = character:FindFirstChild("Head")
+    nameTag.AlwaysOnTop = true
+    nameTag.Parent = character
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = player.Name
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.TextScaled = true
+    nameLabel.Font = Enum.Font.SourceSansBold
+    nameLabel.Parent = nameTag
+
+    ESPObjects[player] = {box, nameTag}
+end
+
+function removeESP(player)
+    if ESPObjects[player] then
+        for _, v in pairs(ESPObjects[player]) do
+            if v then v:Destroy() end
+        end
+        ESPObjects[player] = nil
+    end
+end
+
+function updateESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if ESPEnabled then
+            if player.Character and not ESPObjects[player] then
+                createESP(player)
+            end
+        else
+            removeESP(player)
+        end
+    end
+end
+
+-- Toggle ESP
+PlayerTab:CreateToggle({
+    Name = "Bật/Tắt ESP",
+    CurrentValue = false,
+    Callback = function(Value)
+        ESPEnabled = Value
+        updateESP()
+    end,
+})
+
+-- Theo dõi người chơi mới
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        wait(1)
+        if ESPEnabled then
+            createESP(player)
+        end
+    end)
+end)
+
+-- Xoá ESP khi người chơi rời
+game.Players.PlayerRemoving:Connect(function(player)
+    removeESP(player)
+end)
