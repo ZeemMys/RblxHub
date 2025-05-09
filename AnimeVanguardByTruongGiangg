@@ -304,15 +304,16 @@ local function enableAimbot()
             local camera = workspace.CurrentCamera
             camera.CFrame = CFrame.new(camera.CFrame.Position, target.Character.HumanoidRootPart.Position)
 
-            -- Tạo chấm xanh nếu đổi mục tiêu
             if target ~= currentTarget then
                 currentTarget = target
                 createMarker(target.Character.HumanoidRootPart)
             end
         else
-            -- Không còn mục tiêu
-            currentTarget = nil
-            removeMarker()
+            -- Không có mục tiêu
+            if currentTarget then
+                currentTarget = nil
+                removeMarker()
+            end
         end
     end)
 end
@@ -325,6 +326,7 @@ local function disableAimbot()
     currentTarget = nil
     removeMarker()
 end
+
 
 PlayerTab:CreateToggle({
     Name = "Auto Aimbot",
