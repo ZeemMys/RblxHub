@@ -293,12 +293,9 @@ local function GetNearestTarget()
     return nearest
 end
 
--- Aimbot logic
 local aimbotConnection
 local function enableAimbot()
     aimbotConnection = game:GetService("RunService").RenderStepped:Connect(function()
-        if not AimbotEnabled then return end
-
         local target = GetNearestTarget()
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
             local camera = workspace.CurrentCamera
@@ -309,7 +306,6 @@ local function enableAimbot()
                 createMarker(target.Character.HumanoidRootPart)
             end
         else
-            -- Không có mục tiêu
             if currentTarget then
                 currentTarget = nil
                 removeMarker()
