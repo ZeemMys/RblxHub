@@ -175,66 +175,73 @@ local AntiFlingEnabled = false
 local afConnection = nil
 
 local function disableAntiFling()
-	if AntiFlingEnabled and afConnection then
-		afConnection:Disconnect()
-		afConnection = nil
-		AntiFlingEnabled = false
-	end
+    if AntiFlingEnabled and afConnection then
+        afConnection:Disconnect()
+        afConnection = nil
+        AntiFlingEnabled = false
+    end
 end
 
 -- Fling Toggle
 PlayerTab:CreateToggle({
-	Name = "Fling Mode",
-	CurrentValue = false,
-	Callback = function(Value)
-		local player = game.Players.LocalPlayer
-		local char = player.Character or player.CharacterAdded:Wait()
-		local hrp = char:FindFirstChild("HumanoidRootPart")
+    Name = "Fling Mode",
+    CurrentValue = false,
+    Callback = function(Value)
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:FindFirstChild("HumanoidRootPart")
 
-		if Value then
-			disableAntiFling() -- Tắt Anti-Fling nếu đang bật
-			if hrp then
-				hrp.CFrame = hrp.CFrame + Vector3.new(0, 5, 0)
-				flingConnection = game:GetService("RunService").Stepped:Connect(function()
-					hrp.Velocity = Vector3.new(100, 0, 100)
-					hrp.RotVelocity = Vector3.new(0, 999999, 0)
-				end)
-			end
-		else
-			if flingConnection then
-				flingConnection:Disconnect()
-				flingConnection = nil
-				if hrp then
-					hrp.Velocity = Vector3.zero
-					hrp.RotVelocity = Vector3.zero
-				end
-			end
-		end
-	end,
+        if Value then
+            -- Tắt Anti-Fling nếu đang bật
+            disableAntiFling() 
+            
+            if hrp then
+                hrp.CFrame = hrp.CFrame + Vector3.new(0, 5, 0) -- Nhấc nhân vật lên để tránh vấn đề bị kẹt
+                flingConnection = game:GetService("RunService").Stepped:Connect(function()
+                    hrp.Velocity = Vector3.new(100, 0, 100) -- Áp dụng lực fling
+                    hrp.RotVelocity = Vector3.new(0, 999999, 0) -- Lực quay xoay nhân vật
+                end)
+            end
+        else
+            if flingConnection then
+                flingConnection:Disconnect() -- Tắt fling khi không muốn fling nữa
+                flingConnection = nil
+                if hrp then
+                    hrp.Velocity = Vector3.zero -- Đặt vận tốc về không
+                    hrp.RotVelocity = Vector3.zero -- Đặt vận tốc quay về không
+                end
+            end
+        end
+    end,
 })
 
 -- Anti-Fling Toggle
 PlayerTab:CreateToggle({
-	Name = "Anti-Fling",
-	CurrentValue = false,
-	Callback = function(Value)
-		AntiFlingEnabled = Value
+    Name = "Anti-Fling",
+    CurrentValue = false,
+    Callback = function(Value)
+        AntiFlingEnabled = Value
 
-		if Value then
-			afConnection = game:GetService("RunService").Stepped:Connect(function()
-				local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-				if hrp then
-					hrp.Velocity = Vector3.zero
-					hrp.RotVelocity = Vector3.zero
-				end
-			end)
-		else
-			if afConnection then
-				afConnection:Disconnect()
-				afConnection = nil
-			end
-		end
-	end,
+        if Value then
+            -- Ngăn không cho nhân vật bị fling bằng cách đặt vận tốc về 0 mỗi bước
+            if flingConnection then
+                disableAntiFling() -- Tắt Fling Mode nếu Anti-Fling bật
+            end
+
+            afConnection = game:GetService("RunService").Stepped:Connect(function()
+                local hrp = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    hrp.Velocity = Vector3.zero -- Đặt vận tốc về 0 để ngăn fling
+                    hrp.RotVelocity = Vector3.zero -- Đặt vận tốc quay về 0
+                end
+            end)
+        else
+            if afConnection then
+                afConnection:Disconnect() -- Ngừng Anti-Fling khi không còn bật
+                afConnection = nil
+            end
+        end
+    end,
 })
 
 -- Auto Aimbot
@@ -362,67 +369,71 @@ PlayerTab:CreateSlider({
     end,
 })
 
+local FlyEnabled = false
+local FlySpeed = 50
 local flying = false
-local flySpeed = 50
-local flyConnection
+local bodyGyro, bodyVelocity
 
-local function enableFly()
-    local player = game.Players.LocalPlayer
-    local character = player.Character or player.CharacterAdded:Wait()
-    local hrp = character:WaitForChild("HumanoidRootPart")
+-- Hàm bắt đầu bay
+local function startFlying()
+    local character = game.Players.LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        -- Tạo BodyGyro và BodyVelocity để bay
+        bodyGyro = Instance.new("BodyGyro")
+        bodyVelocity = Instance.new("BodyVelocity")
 
-    flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-        if flying then
-            local camera = workspace.CurrentCamera
-            local direction = Vector3.new(0, 0, 0)
+        bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
+        bodyGyro.CFrame = character.HumanoidRootPart.CFrame
+        bodyGyro.P = 9e4
+        bodyGyro.Parent = character.HumanoidRootPart
 
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
-                direction = direction + camera.CFrame.LookVector
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
-                direction = direction - camera.CFrame.LookVector
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
-                direction = direction - camera.CFrame.RightVector
-            end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
-                direction = direction + camera.CFrame.RightVector
-            end
+        bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
+        bodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)
+        bodyVelocity.Parent = character.HumanoidRootPart
 
-            hrp.Velocity = Vector3.new(direction.X * flySpeed, flySpeed, direction.Z * flySpeed)
-        end
-    end)
-end
-
-local function disableFly()
-    if flyConnection then
-        flyConnection:Disconnect()
-        flyConnection = nil
+        flying = true
     end
 end
 
+-- Hàm dừng bay
+local function stopFlying()
+    local character = game.Players.LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        if bodyGyro then
+            bodyGyro:Destroy()
+        end
+        if bodyVelocity then
+            bodyVelocity:Destroy()
+        end
+        flying = false
+    end
+end
+
+-- Toggle Fly
 PlayerTab:CreateToggle({
-    Name = "Toggle Fly",
+    Name = "Fly",
     CurrentValue = false,
     Callback = function(Value)
-        flying = Value
-        if flying then
-            enableFly()
+        FlyEnabled = Value
+        if Value then
+            startFlying()
         else
-            disableFly()
+            stopFlying()
         end
     end,
 })
 
+-- Fly Speed Slider
 PlayerTab:CreateSlider({
     Name = "Fly Speed",
-    Range = {50, 200},
-    Increment = 1,
-    Suffix = "Speed",
-    CurrentValue = flySpeed,
+    Range = {10, 200},
+    Increment = 5,
+    Suffix = "stud/s",
+    CurrentValue = FlySpeed,
     Callback = function(Value)
-        flySpeed = Value
+        FlySpeed = Value
+        if flying then
+            bodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)
+        end
     end,
 })
-
-local UserInputService = game:GetService("UserInputService")
