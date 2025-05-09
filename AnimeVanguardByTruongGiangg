@@ -319,8 +319,15 @@ local function disableAimbot()
         aimbotConnection:Disconnect()
         aimbotConnection = nil
     end
+
     currentTarget = nil
     removeMarker()
+
+    -- Reset camera để không còn khoá góc nhìn
+    local cam = workspace.CurrentCamera
+    if cam then
+        cam.CameraType = Enum.CameraType.Custom
+    end
 end
 
 PlayerTab:CreateToggle({
