@@ -305,8 +305,8 @@ local function enableAimbot()
             local targetPosition = target.Character.HumanoidRootPart.Position
             local cameraPosition = camera.CFrame.Position
             local direction = (targetPosition - cameraPosition).unit
-            -- Điều chỉnh camera để luôn nhìn vào mục tiêu
-            camera.CFrame = CFrame.new(cameraPosition, targetPosition)
+            -- Điều chỉnh camera để luôn nhìn vào mục tiêu mà không thay đổi góc nhìn của người chơi
+            camera.CFrame = CFrame.new(cameraPosition, cameraPosition + direction)
             
             if target ~= currentTarget then
                 currentTarget = target
