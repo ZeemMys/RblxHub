@@ -295,6 +295,11 @@ end
 
 local aimbotConnection
 local function enableAimbot()
+    local cam = workspace.CurrentCamera
+    if cam then
+        cam.CameraType = Enum.CameraType.Scriptable
+    end
+
     aimbotConnection = game:GetService("RunService").RenderStepped:Connect(function()
         local target = GetNearestTarget()
         if target and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
