@@ -41,7 +41,7 @@ Rayfield:Notify({
    Image = "rewind",
 })
 
-local MainTab = Window:CreateTab("Main", 4483362458) -- Title, Image
+local Tab = Window:CreateTab("Main", 4483362458) -- Title, Image
 local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
 local CreditTab = Window:CreateTab("Credit", 4483362458)
 
