@@ -59,6 +59,8 @@ local Paragraph = Tab:CreateParagraph({Title = "Make By Ducmagic$$$", Content = 
 
 local harvesting = false
 
+local harvesting = false
+
 Tab:CreateToggle({
     Name = "Auto Thu Hoạch Cây",
     CurrentValue = false,
@@ -66,15 +68,22 @@ Tab:CreateToggle({
         harvesting = Value
 
         while harvesting do
+            local remote = game.ReplicatedStorage:FindFirstChild("Fruit_Spawn")
+            if not remote then
+                warn("Không tìm thấy RemoteEvent 'Fruit_Spawn'")
+                break
+            end
+
+            -- Giả định cây nằm ở workspace.Garden.Crops
             for _, plant in pairs(workspace.Garden.Crops:GetChildren()) do
                 if plant:IsA("Model") and plant:FindFirstChild("Harvestable") then
-                    local remote = game.ReplicatedStorage:FindFirstChild("Harvest")
-                    if remote then
+                    pcall(function()
                         remote:FireServer(plant)
-                    end
+                    end)
                 end
             end
-            wait(1) -- chỉnh delay theo tốc độ game
+
+            wait(1) -- đợi 1s giữa mỗi lần thu hoạch
         end
     end,
 })
