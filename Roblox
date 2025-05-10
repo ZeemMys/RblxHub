@@ -41,11 +41,11 @@ Rayfield:Notify({
    Image = "rewind",
 })
 
-local Tab = Window:CreateTab("Main", 4483362458) -- Title, Image
+local MainTab = Window:CreateTab("Main", 4483362458) -- Title, Image
 local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
-local Tab = Window:CreateTab("Credit", 4483362458)
+local CreditTab = Window:CreateTab("Credit", 4483362458)
 
-local Button = Tab:CreateButton({
+local Button = CreditTab:CreateButton({
    Name = "Click To See What Happen:)",
    Callback = function()
        local player = game.Players.LocalPlayer
