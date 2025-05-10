@@ -42,54 +42,7 @@ Rayfield:Notify({
 })
 
 local Tab = Window:CreateTab("Main", 4483362458) -- Title, Image
-
-Tab:CreateButton({
-    Name = "Click me!",
-    Callback = function()
-        print("Hello from Rayfield!")
-    end
-})
-
 local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
-
-
- local Dropdown = Tab:CreateDropdown({
-    Name = "Select Area",
-    Options = {"Summon","Play","Raid","Boss Rush","Challenge"},
-    CurrentOption = {"Summon"},
-    MultipleOptions = false,
-    Flag = "DropDown1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
-    Callback = function(Options)
-        local Dropdown = Tab:CreateDropdown({
-            Name = "Select Area",
-            Options = {"Summon", "Play", "Raid", "Boss Rush", "Challenge"},
-            CurrentOption = {"Summon"},
-            MultipleOptions = false,
-            Flag = "DropDown1",
-            Callback = function(Options)
-                local selected = Options[1]
-                local teleportTable = {
-                    ["Summon"] = workspace:FindFirstChild("Summon"),
-                    ["Play"] = workspace:FindFirstChild("Play"),
-                    ["Raid"] = workspace:FindFirstChild("Raid"),
-                    ["Boss Rush"] = workspace:FindFirstChild("BossRush"),
-                    ["Challenge"] = workspace:FindFirstChild("Challenge")
-                }
-        
-                local destination = teleportTable[selected]
-                if destination and destination:IsA("BasePart") then
-                    game.Players.LocalPlayer.Character:MoveTo(destination.Position)
-                else
-                    warn("Không tìm thấy vị trí cho: " .. selected)
-                end
-            end,
-        })
-        
-    -- The function that takes place when the selected option is changed
-    -- The variable (Options) is a table of strings for the current selected options
-    end,
- })
-
 local Tab = Window:CreateTab("Credit", 4483362458)
 
 local Button = Tab:CreateButton({
@@ -101,6 +54,8 @@ local Button = Tab:CreateButton({
        end
    end,
 })
+
+local Paragraph = Tab:CreateParagraph({Title = "Make By Ducmagic$$$", Content = "Thanks For Using!"})
 
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
@@ -170,37 +125,22 @@ PlayerTab:CreateSlider({
     end,
 })
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local HRP = Character:WaitForChild("HumanoidRootPart")
-
 local flingEnabled = false
-local flingForce = 100000  -- Sức mạnh đẩy
-local rotationSpeed = 50   -- Tốc độ quay để gây va chạm
+local flingForce = 150 -- Điều chỉnh lực vừa đủ để văng
+local connection
 
 local function startFling()
+    local HRP = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
     flingEnabled = true
-    local BodyAngularVelocity = Instance.new("BodyAngularVelocity")
-    BodyAngularVelocity.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-    BodyAngularVelocity.P = math.huge
-    BodyAngularVelocity.AngularVelocity = Vector3.new(0, rotationSpeed, 0)
-    BodyAngularVelocity.Name = "FlingSpin"
-    BodyAngularVelocity.Parent = HRP
 
-    -- Theo dõi người chơi để đẩy
-    RunService.Heartbeat:Connect(function()
+    connection = HRP.Touched:Connect(function(hit)
         if not flingEnabled then return end
-        for _, target in pairs(Players:GetPlayers()) do
-            if target ~= LocalPlayer and target.Character and target.Character:FindFirstChild("HumanoidRootPart") then
-                local targetHRP = target.Character.HumanoidRootPart
-                local distance = (HRP.Position - targetHRP.Position).Magnitude
-                if distance < 5 then
-                    local direction = (targetHRP.Position - HRP.Position).Unit
-                    targetHRP.Velocity = direction * flingForce
-                end
+        local char = hit:FindFirstAncestorOfClass("Model")
+        if char and char:FindFirstChild("Humanoid") and char ~= game.Players.LocalPlayer.Character then
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            if hrp then
+                local direction = (hrp.Position - HRP.Position).Unit
+                hrp.Velocity = direction * flingForce + Vector3.new(0, 30, 0) -- Đẩy kèm chút lên cao
             end
         end
     end)
@@ -208,8 +148,10 @@ end
 
 local function stopFling()
     flingEnabled = false
-    local spin = HRP:FindFirstChild("FlingSpin")
-    if spin then spin:Destroy() end
+    if connection then
+        connection:Disconnect()
+        connection = nil
+    end
 end
 
 -- Thêm vào nút toggle
@@ -390,44 +332,60 @@ PlayerTab:CreateSlider({
     end,
 })
 
-local FlyEnabled = false
-local FlySpeed = 50
+local UIS = game:GetService("UserInputService")
+local RS = game:GetService("RunService")
+local flyConnection
+local velocity
+local flySpeed = 50
 local flying = false
-local bodyGyro, bodyVelocity
 
--- Hàm bắt đầu bay
 local function startFlying()
-    local character = game.Players.LocalPlayer.Character
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        -- Tạo BodyGyro và BodyVelocity để bay
-        bodyGyro = Instance.new("BodyGyro")
-        bodyVelocity = Instance.new("BodyVelocity")
+    local char = game.Players.LocalPlayer.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
 
-        bodyGyro.MaxTorque = Vector3.new(400000, 400000, 400000)
-        bodyGyro.CFrame = character.HumanoidRootPart.CFrame
-        bodyGyro.P = 9e4
-        bodyGyro.Parent = character.HumanoidRootPart
+    velocity = Instance.new("BodyVelocity")
+    velocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
+    velocity.Velocity = Vector3.zero
+    velocity.Parent = hrp
 
-        bodyVelocity.MaxForce = Vector3.new(400000, 400000, 400000)
-        bodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)
-        bodyVelocity.Parent = character.HumanoidRootPart
+    flying = true
 
-        flying = true
-    end
+    flyConnection = RS.RenderStepped:Connect(function()
+        local cam = workspace.CurrentCamera
+        local moveDirection = Vector3.zero
+
+        if UIS:IsKeyDown(Enum.KeyCode.W) then
+            moveDirection += cam.CFrame.LookVector
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.S) then
+            moveDirection -= cam.CFrame.LookVector
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.A) then
+            moveDirection -= cam.CFrame.RightVector
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.D) then
+            moveDirection += cam.CFrame.RightVector
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.Space) then
+            moveDirection += Vector3.new(0, 1, 0)
+        end
+        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
+            moveDirection -= Vector3.new(0, 1, 0)
+        end
+
+        if moveDirection.Magnitude > 0 then
+            velocity.Velocity = moveDirection.Unit * flySpeed
+        else
+            velocity.Velocity = Vector3.zero
+        end
+    end)
 end
 
--- Hàm dừng bay
 local function stopFlying()
-    local character = game.Players.LocalPlayer.Character
-    if character and character:FindFirstChild("HumanoidRootPart") then
-        if bodyGyro then
-            bodyGyro:Destroy()
-        end
-        if bodyVelocity then
-            bodyVelocity:Destroy()
-        end
-        flying = false
-    end
+    flying = false
+    if flyConnection then flyConnection:Disconnect() end
+    if velocity then velocity:Destroy() end
 end
 
 -- Toggle Fly
