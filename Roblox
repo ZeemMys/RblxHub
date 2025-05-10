@@ -55,7 +55,7 @@ local Button = CreditTab:CreateButton({
    end,
 })
 
-local Paragraph = Tab:CreateParagraph({Title = "Make By Ducmagic$$$", Content = "Thanks For Using!"})
+local Paragraph = Tab:CreateParagraph({Title = "Make By Ducmagic$$$", Content = "Contact : 0856469268"})
 
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
