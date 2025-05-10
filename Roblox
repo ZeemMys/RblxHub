@@ -57,6 +57,28 @@ local Button = CreditTab:CreateButton({
 
 local Paragraph = Tab:CreateParagraph({Title = "Make By Ducmagic$$$", Content = "Contact : 0856469268"})
 
+local harvesting = false
+
+Tab:CreateToggle({
+    Name = "Auto Thu Hoạch Cây",
+    CurrentValue = false,
+    Callback = function(Value)
+        harvesting = Value
+
+        while harvesting do
+            for _, plant in pairs(workspace.Garden.Crops:GetChildren()) do
+                if plant:IsA("Model") and plant:FindFirstChild("Harvestable") then
+                    local remote = game.ReplicatedStorage:FindFirstChild("Harvest")
+                    if remote then
+                        remote:FireServer(plant)
+                    end
+                end
+            end
+            wait(1) -- chỉnh delay theo tốc độ game
+        end
+    end,
+})
+
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
 local DefaultWalkSpeed = 16
