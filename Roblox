@@ -410,7 +410,7 @@ PlayerTab:CreateSlider({
     Suffix = "stud/s",
     CurrentValue = flySpeed,
     Callback = function(Value)
-        FlySpeed = Value
+        flySpeed = Value
         if flying then
             bodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)
         end
