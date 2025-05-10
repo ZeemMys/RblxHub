@@ -59,8 +59,6 @@ local Paragraph = Tab:CreateParagraph({Title = "Make By Ducmagic$$$", Content = 
 
 local harvesting = false
 
-local harvesting = false
-
 Tab:CreateToggle({
     Name = "Auto Thu Hoạch Cây",
     CurrentValue = false,
