@@ -48,26 +48,37 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
--- Auto Harvest + Sell
+local autoHarvest = false
+
 MainTab:CreateToggle({
-   Name = "Auto Harvest + Sell",
-   CurrentValue = false,
-   Callback = function(Value)
-      getgenv().Auto = Value
-      while getgenv().Auto do
-         task.wait()
-         local farmPath = game:GetService("Workspace"):WaitForChild("Farm"):WaitForChild("Farm"):WaitForChild("Important"):FindFirstChild("Plant_Physical")
-         if farmPath then
-            for _, plant in pairs(farmPath:GetChildren()) do
-               if plant:IsA("Model") and plant:FindFirstChild("Fruit") then
-                  firetouchinterest(plant.Fruit, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
-                  task.wait()
-                  firetouchinterest(plant.Fruit, game.Players.LocalPlayer.Character.HumanoidRootPart, 1)
-               end
+    Name = "Auto Harvest & Sell",
+    CurrentValue = false,
+    Flag = "AutoHarvest",
+    Callback = function(Value)
+        autoHarvest = Value
+
+        while autoHarvest do
+            task.wait(1)
+            -- Lặp qua tất cả farm trong Workspace.Farm
+            for _, farm in pairs(game.Workspace.Farm:GetChildren()) do
+                local plants = farm:FindFirstChild("Plants_Physical")
+                if plants then
+                    for _, plant in pairs(plants:GetChildren()) do
+                        local fruits = plant:FindFirstChild("Fruits")
+                        if fruits then
+                            local grow = fruits:FindFirstChild("Grow")
+                            if grow then
+                                local part2 = grow:FindFirstChild("2")
+                                if part2 and part2:FindFirstChildWhichIsA("ProximityPrompt") then
+                                    fireproximityprompt(part2:FindFirstChildWhichIsA("ProximityPrompt"))
+                                end
+                            end
+                        end
+                    end
+                end
             end
-         end
-      end
-   end,
+        end
+    end,
 })
 
 ------CREDIT------
