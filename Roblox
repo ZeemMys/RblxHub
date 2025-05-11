@@ -48,45 +48,26 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
-local autoHarvest = false
-local harvestConnection
-
-PlayerTab:CreateToggle({
-    Name = "Auto Harvest + Sell",
-    CurrentValue = false,
-    Flag = "AutoHarvestToggle",
-    Callback = function(Value)
-        autoHarvest = Value
-        if autoHarvest then
-            local player = game.Players.LocalPlayer
-            local character = player.Character or player.CharacterAdded:Wait()
-            local hrp = character:WaitForChild("HumanoidRootPart")
-            local plantFolder = workspace:WaitForChild("Farm"):WaitForChild("Farm"):WaitForChild("Important"):WaitForChild("Plant&Physical")
-            local sellRemote = game.ReplicatedStorage:WaitForChild("SellRemote")
-
-            harvestConnection = game:GetService("RunService").RenderStepped:Connect(function()
-                for _, plant in pairs(plantFolder:GetChildren()) do
-                    if plant:IsA("Model") and #plant:GetChildren() > 0 then
-                        for _, obj in pairs(plant:GetDescendants()) do
-                            if obj:IsA("BasePart") and obj.Name:lower():match("part") then
-                                if (hrp.Position - obj.Position).Magnitude <= 10 then
-                                    firetouchinterest(hrp, obj, 0)
-                                    firetouchinterest(hrp, obj, 1)
-                                    -- Gọi remote bán sau khi chạm
-                                    sellRemote:FireServer()
-                                end
-                            end
-                        end
-                    end
-                end
-            end)
-        else
-            if harvestConnection then
-                harvestConnection:Disconnect()
-                harvestConnection = nil
+-- Auto Harvest + Sell
+MainTab:CreateToggle({
+   Name = "Auto Harvest + Sell",
+   CurrentValue = false,
+   Callback = function(Value)
+      getgenv().Auto = Value
+      while getgenv().Auto do
+         task.wait()
+         local farmPath = game:GetService("Workspace"):WaitForChild("Farm"):WaitForChild("Farm"):WaitForChild("Important"):FindFirstChild("Plant_Physical")
+         if farmPath then
+            for _, plant in pairs(farmPath:GetChildren()) do
+               if plant:IsA("Model") and plant:FindFirstChild("Fruit") then
+                  firetouchinterest(plant.Fruit, game.Players.LocalPlayer.Character.HumanoidRootPart, 0)
+                  task.wait()
+                  firetouchinterest(plant.Fruit, game.Players.LocalPlayer.Character.HumanoidRootPart, 1)
+               end
             end
-        end
-    end,
+         end
+      end
+   end,
 })
 
 ------CREDIT------
