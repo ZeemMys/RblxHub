@@ -48,32 +48,30 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
-local autoHarvest = false
-local harvestThread
-
 MainTab:CreateToggle({
     Name = "Auto Harvest",
     CurrentValue = false,
-    Callback = function(Value)
-        autoHarvest = Value
-        if autoHarvest then
-            harvestThread = task.spawn(function()
-                while autoHarvest do
-                    for _, playerFarm in pairs(workspace.Farm:GetChildren()) do
-                        local important = playerFarm:FindFirstChild("Important")
+    Callback = function(state)
+        getgenv().AutoHarvest = state
+        if state then
+            task.spawn(function()
+                while getgenv().AutoHarvest do
+                    for _, farm in pairs(workspace.Farm:GetChildren()) do
+                        local important = farm:FindFirstChild("Important")
                         if important then
-                            local plantsFolder = important:FindFirstChild("Plants_Physical")
-                            if plantsFolder then
-                                for _, plant in pairs(plantsFolder:GetChildren()) do
-                                    local fruit = plant:FindFirstChild("Fruits")
-                                    if fruit then
-                                        local growFolder = fruit:FindFirstChild("Grow")
-                                        if growFolder then
-                                            for _, growPart in pairs(growFolder:GetChildren()) do
-                                                local prompt = growPart:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                                if prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled then
-                                                    fireproximityprompt(prompt)
-                                                    task.wait(0.1)
+                            local plantFolder = important:FindFirstChild("Plants_Physical")
+                            if plantFolder then
+                                for _, plant in pairs(plantFolder:GetChildren()) do
+                                    local fruits = plant:FindFirstChild("Fruits")
+                                    if fruits then
+                                        local grow = fruits:FindFirstChild("Grow")
+                                        if grow then
+                                            for _, part in pairs(grow:GetChildren()) do
+                                                if part:IsA("BasePart") then
+                                                    local prompt = part:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                                    if prompt and prompt.Enabled then
+                                                        fireproximityprompt(prompt)
+                                                    end
                                                 end
                                             end
                                         end
@@ -85,14 +83,9 @@ MainTab:CreateToggle({
                     task.wait(1)
                 end
             end)
-        else
-            if harvestThread then
-                task.cancel(harvestThread)
-            end
         end
     end
 })
-
 ------CREDIT------
 local Button = CreditTab:CreateButton({
    Name = "Click To See What Happen:)",
