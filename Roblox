@@ -47,7 +47,7 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
--- Add the code for "Bán Tất Cả Đồ" and "Bán Tự Động" inside the MainTab
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local sellRemote = ReplicatedStorage:WaitForChild("SellRemote")
 
@@ -66,15 +66,10 @@ local function sellAllItems()
     -- Gửi yêu cầu bán đồ cho Server
     if #toolsToSell > 0 then
         sellRemote:FireServer(toolsToSell)
-    else
-        print("No tools to sell!")  -- Debugging message
     end
 end
 
--- Make sure MainTab is properly created
-print("Creating 'Bán Tất Cả Đồ' button and 'Bán Tự Động' toggle...")
-
--- Add "Sell All Items" Button to the MainTab
+-- Thêm Button bán tất cả đồ
 MainTab:CreateButton({
     Name = "Bán Tất Cả Đồ",
     Callback = function()
@@ -83,20 +78,19 @@ MainTab:CreateButton({
     end
 })
 
--- Add Auto Sell Toggle to the MainTab
+-- Toggle bán tự động
 local AutoSellEnabled = false
 MainTab:CreateToggle({
     Name = "Bán Tự Động",
     CurrentValue = false,
     Callback = function(Value)
-        print("Bán Tự Động toggled")  -- Debugging message
         AutoSellEnabled = Value
+        print("Bán Tự Động toggled to: " .. tostring(Value))  -- Debugging message
         if AutoSellEnabled then
             sellAllItems()  -- Bán ngay khi bật chế độ tự động
         end
     end
 })
-
 ------CREDIT------
 local Button = CreditTab:CreateButton({
    Name = "Click To See What Happen:)",
