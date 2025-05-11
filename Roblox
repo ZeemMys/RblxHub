@@ -49,48 +49,53 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
 MainTab:CreateToggle({
-    Name = "Auto Harvest",
+    Name = "Auto Harvest (TP đến fruit + harvest)",
     CurrentValue = false,
-    Callback = function(state)
-        getgenv().AutoHarvest = state
-        if state then
-            task.spawn(function()
-                while getgenv().AutoHarvest do
-                    for _, farm in pairs(workspace.Farm:GetChildren()) do
-                        local important = farm:FindFirstChild("Important")
-                        if important then
-                            local plantFolder = important:FindFirstChild("Plants_Physical")
-                            if plantFolder then
-                                for _, plant in pairs(plantFolder:GetChildren()) do
-                                    local fruits = plant:FindFirstChild("Fruits")
-                                    if fruits then
-                                        local grow = fruits:FindFirstChild("Grow")
-                                        if grow then
-                                            for _, part in pairs(grow:GetChildren()) do
-                                                if part:IsA("BasePart") then
-                                                    local prompt = part:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                                    if prompt and prompt.Enabled then
-                                                        -- Teleport tới fruit
-                                                        local character = game.Players.LocalPlayer.Character
-                                                        if character and character:FindFirstChild("HumanoidRootPart") then
-                                                            character.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 3, 0)
-                                                            task.wait(0.2) -- đợi nhân vật tới nơi
-                                                            fireproximityprompt(prompt)
-                                                        end
-                                                    end
-                                                end
-                                            end
+    Flag = "AutoHarvestTP",
+    Callback = function(Value)
+        _G.AutoHarvestTP = Value
+        local TweenService = game:GetService("TweenService")
+        local Players = game:GetService("Players")
+        local player = Players.LocalPlayer
+        local hrp = player.Character:WaitForChild("HumanoidRootPart")
+
+        -- Hàm tween đến một quả fruit
+        local function tweenTo(part)
+            if not part:IsA("BasePart") then return end
+            local info = TweenInfo.new(0.8, Enum.EasingStyle.Linear)
+            local goal = {CFrame = part.CFrame + Vector3.new(0, 3, 0)}
+            local tween = TweenService:Create(hrp, info, goal)
+            tween:Play()
+            tween.Completed:Wait()
+        end
+
+        -- Lặp liên tục khi bật
+        while _G.AutoHarvestTP do
+            pcall(function()
+                local farmFolder = workspace:WaitForChild("Farm")
+                for _, farm in pairs(farmFolder:GetChildren()) do
+                    if farm:FindFirstChild("Plants_Physical") then
+                        for _, plant in pairs(farm.Plants_Physical:GetChildren()) do
+                            if plant:FindFirstChild("Fruits") and plant.Fruits:FindFirstChild("Grow") then
+                                for _, part in pairs(plant.Fruits.Grow:GetChildren()) do
+                                    if part:IsA("Part") then
+                                        local prompt = part:FindFirstChildWhichIsA("ProximityPrompt")
+                                        if prompt then
+                                            tweenTo(part)
+                                            task.wait(1) -- Chờ di chuyển
+                                            fireproximityprompt(prompt)
+                                            task.wait(0.3)
                                         end
                                     end
                                 end
                             end
                         end
                     end
-                    task.wait(1)
                 end
             end)
+            task.wait(1)
         end
-    end
+    end,
 })
 ------CREDIT------
 local Button = CreditTab:CreateButton({
