@@ -49,33 +49,41 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
 local autoHarvest = false
+local harvestConnection
 
 MainTab:CreateToggle({
-    Name = "Auto Harvest & Sell",
+    Name = "Auto Harvest",
     CurrentValue = false,
-    Flag = "AutoHarvest",
-    Callback = function(Value)
-        autoHarvest = Value
+    Flag = "AutoHarvestToggle",
+    Callback = function(value)
+        autoHarvest = value
 
-        while autoHarvest do
-            task.wait(1)
-            -- Lặp qua tất cả farm trong Workspace.Farm
-            for _, farm in pairs(game.Workspace.Farm:GetChildren()) do
-                local plants = farm:FindFirstChild("Plants_Physical")
-                if plants then
-                    for _, plant in pairs(plants:GetChildren()) do
-                        local fruits = plant:FindFirstChild("Fruits")
-                        if fruits then
-                            local grow = fruits:FindFirstChild("Grow")
-                            if grow then
-                                local part2 = grow:FindFirstChild("2")
-                                if part2 and part2:FindFirstChildWhichIsA("ProximityPrompt") then
-                                    fireproximityprompt(part2:FindFirstChildWhichIsA("ProximityPrompt"))
+        if autoHarvest then
+            harvestConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                for _, playerFarm in pairs(workspace.Farm:GetChildren()) do
+                    local plants = playerFarm:FindFirstChild("Plants_Physical")
+                    if plants then
+                        for _, plant in pairs(plants:GetChildren()) do
+                            local fruits = plant:FindFirstChild("Fruits")
+                            if fruits then
+                                for _, fruit in pairs(fruits:GetChildren()) do
+                                    local grow = fruit:FindFirstChild("Grow")
+                                    if grow and grow:FindFirstChild("2") then
+                                        local prompt = grow["2"]:FindFirstChildWhichIsA("ProximityPrompt")
+                                        if prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled then
+                                            fireproximityprompt(prompt)
+                                        end
+                                    end
                                 end
                             end
                         end
                     end
                 end
+            end)
+        else
+            if harvestConnection then
+                harvestConnection:Disconnect()
+                harvestConnection = nil
             end
         end
     end,
