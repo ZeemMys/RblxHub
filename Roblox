@@ -41,10 +41,14 @@ Rayfield:Notify({
    Image = "rewind",
 })
 
-local Tab = Window:CreateTab("Main", 4483362458) -- Title, Image
+local MainTab = Window:CreateTab("Main", 4483362458) -- Title, Image
 local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
 local CreditTab = Window:CreateTab("Credit", 4483362458)
 
+------MAIN--------
+local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
+
+------CREDIT------
 local Button = CreditTab:CreateButton({
    Name = "Click To See What Happen:)",
    Callback = function()
@@ -54,7 +58,7 @@ local Button = CreditTab:CreateButton({
        end
    end
 })
-
+------PLAYER---------
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
 local DefaultWalkSpeed = 16
