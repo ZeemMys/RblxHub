@@ -62,8 +62,11 @@ MainTab:CreateToggle({
         -- Hàm tween đến một quả fruit
         local function tweenTo(part)
             if not part:IsA("BasePart") then return end
+            -- Tạo thông tin tween
             local info = TweenInfo.new(0.8, Enum.EasingStyle.Linear)
-            local goal = {CFrame = part.CFrame + Vector3.new(0, 3, 0)}
+            -- Tạo mục tiêu CFrame của part
+            local goal = {CFrame = part.CFrame}
+            -- Tạo tween đến vị trí của part
             local tween = TweenService:Create(hrp, info, goal)
             tween:Play()
             tween.Completed:Wait()
@@ -72,20 +75,23 @@ MainTab:CreateToggle({
         -- Lặp liên tục khi bật
         while _G.AutoHarvestTP do
             pcall(function()
+                -- Duyệt qua Farm -> Farm -> Important -> Plants_Physical
                 local farmFolder = workspace:WaitForChild("Farm")
-                for _, farm in pairs(farmFolder:GetChildren()) do
-                    if farm:FindFirstChild("Plants_Physical") then
-                        for _, plant in pairs(farm.Plants_Physical:GetChildren()) do
-                            if plant:FindFirstChild("Fruits") and plant.Fruits:FindFirstChild("Grow") then
-                                for _, part in pairs(plant.Fruits.Grow:GetChildren()) do
-                                    if part:IsA("Part") then
-                                        local prompt = part:FindFirstChildWhichIsA("ProximityPrompt")
-                                        if prompt then
-                                            tweenTo(part)
-                                            task.wait(1) -- Chờ di chuyển
-                                            fireproximityprompt(prompt)
-                                            task.wait(0.3)
-                                        end
+                local importantFolder = farmFolder:WaitForChild("Farm"):WaitForChild("Important")
+                local plantsFolder = importantFolder:WaitForChild("Plants_Physical")
+
+                for _, plant in pairs(plantsFolder:GetChildren()) do
+                    if plant:FindFirstChild("Fruits") then
+                        local fruitsFolder = plant.Fruits:FindFirstChild("Grow")
+                        if fruitsFolder then
+                            for _, part in pairs(fruitsFolder:GetChildren()) do
+                                if part:IsA("Part") then
+                                    local prompt = part:FindFirstChildWhichIsA("ProximityPrompt")
+                                    if prompt then
+                                        tweenTo(part)  -- Di chuyển tới quả fruit
+                                        task.wait(1)   -- Chờ di chuyển đến phần tử
+                                        fireproximityprompt(prompt)
+                                        task.wait(0.5) -- Thêm thời gian chờ ngắn sau mỗi lần thu hoạch
                                     end
                                 end
                             end
@@ -93,7 +99,7 @@ MainTab:CreateToggle({
                     end
                 end
             end)
-            task.wait(1)
+            task.wait(2) -- Thêm khoảng thời gian chờ giữa mỗi lần quét farm
         end
     end,
 })
