@@ -52,6 +52,7 @@ local Button = CreditTab:CreateButton({
        if player and player.Character then
            player.Character:BreakJoints() -- Reset nhân vật
        end
+   end
 })
 
 local autoHarvest = false
