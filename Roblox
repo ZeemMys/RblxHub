@@ -47,6 +47,55 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
+-- Add the code for "Bán Tất Cả Đồ" and "Bán Tự Động" inside the MainTab
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local sellRemote = ReplicatedStorage:WaitForChild("SellRemote")
+
+local function sellAllItems()
+    local player = game.Players.LocalPlayer
+    local backpack = player.Backpack
+    local toolsToSell = {}
+
+    -- Lọc tất cả các công cụ có thể bán
+    for _, item in pairs(backpack:GetChildren()) do
+        if item:IsA("Tool") then
+            table.insert(toolsToSell, item)
+        end
+    end
+
+    -- Gửi yêu cầu bán đồ cho Server
+    if #toolsToSell > 0 then
+        sellRemote:FireServer(toolsToSell)
+    else
+        print("No tools to sell!")  -- Debugging message
+    end
+end
+
+-- Make sure MainTab is properly created
+print("Creating 'Bán Tất Cả Đồ' button and 'Bán Tự Động' toggle...")
+
+-- Add "Sell All Items" Button to the MainTab
+MainTab:CreateButton({
+    Name = "Bán Tất Cả Đồ",
+    Callback = function()
+        print("Bán Tất Cả Đồ clicked")  -- Debugging message
+        sellAllItems()
+    end
+})
+
+-- Add Auto Sell Toggle to the MainTab
+local AutoSellEnabled = false
+MainTab:CreateToggle({
+    Name = "Bán Tự Động",
+    CurrentValue = false,
+    Callback = function(Value)
+        print("Bán Tự Động toggled")  -- Debugging message
+        AutoSellEnabled = Value
+        if AutoSellEnabled then
+            sellAllItems()  -- Bán ngay khi bật chế độ tự động
+        end
+    end
+})
 
 ------CREDIT------
 local Button = CreditTab:CreateButton({
@@ -420,46 +469,3 @@ end)
 game.Players.PlayerRemoving:Connect(function(player)
     removeESP(player)
 end)
-
-------SELL (Bán đồ)--------
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local sellRemote = ReplicatedStorage:WaitForChild("SellRemote")
-
-local function sellAllItems()
-    local player = game.Players.LocalPlayer
-    local backpack = player.Backpack
-    local toolsToSell = {}
-
-    -- Lọc tất cả các công cụ có thể bán
-    for _, item in pairs(backpack:GetChildren()) do
-        if item:IsA("Tool") then
-            table.insert(toolsToSell, item)
-        end
-    end
-
-    -- Gửi yêu cầu bán đồ cho Server
-    if #toolsToSell > 0 then
-        sellRemote:FireServer(toolsToSell)
-    end
-end
-
--- Add "Sell All Items" Button to the MainTab
-MainTab:CreateButton({
-    Name = "Bán Tất Cả Đồ",
-    Callback = function()
-        sellAllItems()
-    end
-})
-
--- Add Auto Sell Toggle to the MainTab
-local AutoSellEnabled = false
-MainTab:CreateToggle({
-    Name = "Bán Tự Động",
-    CurrentValue = false,
-    Callback = function(Value)
-        AutoSellEnabled = Value
-        if AutoSellEnabled then
-            sellAllItems()  -- Bán ngay khi bật chế độ tự động
-        end
-    end
-})
