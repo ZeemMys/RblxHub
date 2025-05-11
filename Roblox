@@ -421,7 +421,7 @@ game.Players.PlayerRemoving:Connect(function(player)
     removeESP(player)
 end)
 
-------SELL TAB (Bán đồ)--------
+------SELL (Bán đồ)--------
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local sellRemote = ReplicatedStorage:WaitForChild("SellRemote")
 
@@ -443,6 +443,7 @@ local function sellAllItems()
     end
 end
 
+-- Add "Sell All Items" Button to the MainTab
 MainTab:CreateButton({
     Name = "Bán Tất Cả Đồ",
     Callback = function()
@@ -450,7 +451,7 @@ MainTab:CreateButton({
     end
 })
 
--- Thêm tính năng Toggle bán đồ tự động
+-- Add Auto Sell Toggle to the MainTab
 local AutoSellEnabled = false
 MainTab:CreateToggle({
     Name = "Bán Tự Động",
