@@ -59,32 +59,116 @@ local Paragraph = Tab:CreateParagraph({Title = "Make By Ducmagic$$$", Content = 
 
 local harvesting = false
 
-Tab:CreateToggle({
-    Name = "Auto Thu Hoạch Cây",
-    CurrentValue = false,
-    Callback = function(Value)
-        harvesting = Value
+local isSelling = false -- Biến kiểm soát trạng thái toggle, bắt đầu ở trạng thái "Tắt"
 
-        while harvesting do
-            local remote = game.ReplicatedStorage:FindFirstChild("Fruit_Spawn")
-            if not remote then
-                warn("Không tìm thấy RemoteEvent 'Fruit_Spawn'")
-                break
-            end
+local function toggleSell() 
+    isSelling = not isSelling  -- Đảo ngược trạng thái toggle mỗi khi gọi
+    if isSelling then
+        -- Nếu đang bật chế độ bán đồ, hiển thị các lựa chọn
+        Top_Text_upvr.NpcText(Parent_upvr, "Got anything to sell?", false)
+    else
+        -- Nếu đang tắt chế độ bán đồ, hủy bỏ các lựa chọn và thông báo
+        Top_Text_upvr.NpcText(Parent_upvr, "Nevermind", false)
+    end
+end
 
-            -- Giả định cây nằm ở workspace.Garden.Crops
-            for _, plant in pairs(workspace.Garden.Crops:GetChildren()) do
-                if plant:IsA("Model") and plant:FindFirstChild("Harvestable") then
-                    pcall(function()
-                        remote:FireServer(plant)
-                    end)
+local function yes_upvr() -- Line 114, Named "yes"
+    --[[ Upvalues[19]:
+        [1]: var11_upvw (read and write)
+        [2]: var10_upvw (read and write)
+        [3]: var13_upvw (read and write)
+        [4]: LocalPlayer_upvr (readonly)
+        [5]: NPC_MOD_upvr (readonly)
+        [6]: var9_upvw (read and write)
+        [7]: TweenService_upvr (readonly)
+        [8]: TweenInfo_new_result1_upvr (readonly)
+        [9]: Debris_upvr (readonly)
+        [10]: var12_upvw (read and write)
+        [11]: Top_Text_upvr (readonly)
+        [12]: Parent_upvr (readonly)
+        [13]: waitForDuration_upvr (readonly)
+        [14]: cancelYes_upvr (readonly)
+        [15]: getSellableTools_upvr (readonly)
+        [16]: CalculatePlantValue_upvr (readonly)
+        [17]: Comma_Module_upvr (readonly)
+        [18]: processSale_upvr (readonly)
+        [19]: CalculatePetValue_upvr (readonly)
+    ]]
+    if not var11_upvw then return end
+    var11_upvw = false
+    var10_upvw = true
+    var13_upvw = LocalPlayer_upvr
+    NPC_MOD_upvr.Start_Speak(LocalPlayer_upvr)
+    if var9_upvw then
+        TweenService_upvr:Create(var9_upvw, TweenInfo_new_result1_upvr, {
+            OutlineTransparency = 1;
+        }):Play()
+        Debris_upvr:AddItem(var9_upvw, TweenInfo_new_result1_upvr.Time)
+    end
+    var12_upvw = false
+    script.Parent.Enabled = false
+    
+    if isSelling then -- Kiểm tra xem tính năng bán đồ đã được bật chưa
+        -- Hiển thị các lựa chọn bán đồ nếu đang ở chế độ bán
+        Top_Text_upvr.NpcText(Parent_upvr, "Got anything to sell?", false)
+        if not waitForDuration_upvr(math.random(1, 1.5)) then
+            return cancelYes_upvr()
+        end
+        local tbl_2 = {"I want to sell my inventory", "I want to sell this", "How much is this worth?", "Nevermind"}
+        if workspace:GetAttribute("InTutorial") then
+            tbl_2 = {"I want to sell my inventory"}
+        end
+        if var12_upvw then
+            return cancelYes_upvr()
+        end
+        for _, v_3 in pairs(Top_Text_upvr.ShowChoices(LocalPlayer_upvr, tbl_2)) do
+            local Frame_upvr_2 = v_3:FindFirstChild("Frame")
+            if Frame_upvr_2 then
+                local ImageButton_2 = Frame_upvr_2:FindFirstChild("ImageButton")
+                if ImageButton_2 then
+                    local var59_upvw = ""
+                    local var60_upvw = ""
+                    table.insert({}, ImageButton_2.MouseButton1Click:Connect(function() -- Line 164
+                        var59_upvw = Frame_upvr_2.Frame.Text_Element:GetAttribute("Text")
+                        if var59_upvw == "I want to sell my inventory" then
+                            var60_upvw = "Sell Inventory"
+                            -- Call the function to sell all inventory items
+                            local sellableTools = getSellableTools_upvr(LocalPlayer_upvr.Backpack, true)
+                            local totalValue = processSale_upvr(LocalPlayer_upvr, sellableTools, true, nil)
+                            -- Add logic to sell the inventory and give feedback
+                            Top_Text_upvr.NpcText(Parent_upvr, "You've sold your inventory for " .. Comma_Module_upvr.FormatNumber(totalValue) .. " coins.", false)
+                        elseif var59_upvw == "I want to sell this" then
+                            var60_upvw = "Sell This"
+                            -- Handle selling a specific item
+                            local selectedTool = --[[ retrieve the tool the player wants to sell, add logic for selection ]]
+                            if selectedTool then
+                                local itemValue = CalculatePetValue_upvr(selectedTool)
+                                processSale_upvr(LocalPlayer_upvr, {selectedTool}, true, nil)
+                                Top_Text_upvr.NpcText(Parent_upvr, "You've sold " .. selectedTool.Name .. " for " .. Comma_Module_upvr.FormatNumber(itemValue) .. " coins.", false)
+                            end
+                        elseif var59_upvw == "How much is this worth?" then
+                            var60_upvw = "How"
+                            -- Add logic to calculate value of selected item (like an info display)
+                        elseif var59_upvw == "Tell me about this" then
+                            var60_upvw = "Tell me"
+                            -- Add logic for item information display
+                        else
+                            var60_upvw = "Nevermind"
+                        end
+                    end))
                 end
             end
-
-            wait(1) -- đợi 1s giữa mỗi lần thu hoạch
         end
-    end,
-})
+    else
+        -- Nếu chế độ bán đồ tắt, hiển thị thông báo từ chối
+        Top_Text_upvr.NpcText(Parent_upvr, "Nevermind", false)
+    end
+end
+
+-- Hàm để toggle chế độ bán đồ
+script.Parent.Toggled:Connect(function()
+    toggleSell()  -- Khi người chơi bấm vào nút hoặc kích hoạt điều gì đó, sẽ toggle bán đồ
+end)
 
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
