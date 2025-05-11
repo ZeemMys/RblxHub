@@ -307,88 +307,77 @@ PlayerTab:CreateSlider({
     end,
 })
 
-local UIS = game:GetService("UserInputService")
-local RS = game:GetService("RunService")
-local flyConnection
-local velocity
-local flySpeed = 50
-local flying = false
+-- Biến điều khiển fly
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
-local function startFlying()
-    local char = game.Players.LocalPlayer.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
+local flyEnabled = false
+local flyingCFrame = nil
+local flySpeed = 2 -- Giá trị mặc định (tốc độ bay)
 
-    velocity = Instance.new("BodyVelocity")
-    velocity.MaxForce = Vector3.new(1e5, 1e5, 1e5)
-    velocity.Velocity = Vector3.zero
-    velocity.Parent = hrp
+-- Hàm bay
+local function toggleFly(state)
+    flyEnabled = state
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local hrp = character:WaitForChild("HumanoidRootPart")
+    flyingCFrame = character:GetPivot()
 
-    flying = true
+    RunService:UnbindFromRenderStep("ControlledFly")
 
-    flyConnection = RS.RenderStepped:Connect(function()
-        local cam = workspace.CurrentCamera
-        local moveDirection = Vector3.zero
+    if flyEnabled then
+        RunService:BindToRenderStep("ControlledFly", Enum.RenderPriority.Character.Value, function()
+            local cam = workspace.CurrentCamera
+            if not cam then return end
 
-        if UIS:IsKeyDown(Enum.KeyCode.W) then
-            moveDirection += cam.CFrame.LookVector
-        end
-        if UIS:IsKeyDown(Enum.KeyCode.S) then
-            moveDirection -= cam.CFrame.LookVector
-        end
-        if UIS:IsKeyDown(Enum.KeyCode.A) then
-            moveDirection -= cam.CFrame.RightVector
-        end
-        if UIS:IsKeyDown(Enum.KeyCode.D) then
-            moveDirection += cam.CFrame.RightVector
-        end
-        if UIS:IsKeyDown(Enum.KeyCode.Space) then
-            moveDirection += Vector3.new(0, 1, 0)
-        end
-        if UIS:IsKeyDown(Enum.KeyCode.LeftControl) then
-            moveDirection -= Vector3.new(0, 1, 0)
-        end
+            local move = Vector3.zero
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then
+                move += cam.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then
+                move -= cam.CFrame.LookVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.A) then
+                move -= cam.CFrame.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.D) then
+                move += cam.CFrame.RightVector
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                move += Vector3.new(0, 1, 0)
+            end
+            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then
+                move -= Vector3.new(0, 1, 0)
+            end
 
-        if moveDirection.Magnitude > 0 then
-            velocity.Velocity = moveDirection.Unit * flySpeed
-        else
-            velocity.Velocity = Vector3.zero
-        end
-    end)
+            if move.Magnitude > 0 then
+                flyingCFrame *= CFrame.new(move.Unit * flySpeed)
+                character:PivotTo(flyingCFrame)
+            end
+        end)
+    else
+        RunService:UnbindFromRenderStep("ControlledFly")
+    end
 end
 
-local function stopFlying()
-    flying = false
-    if flyConnection then flyConnection:Disconnect() end
-    if velocity then velocity:Destroy() end
-end
-
--- Toggle Fly
+-- Tạo nút bật/tắt Fly
 PlayerTab:CreateToggle({
-    Name = "Fly",
+    Name = "Fly (WASD + Space)",
     CurrentValue = false,
     Callback = function(Value)
-        FlyEnabled = Value
-        if Value then
-            startFlying()
-        else
-            stopFlying()
-        end
+        toggleFly(Value)
     end,
 })
 
--- Fly Speed Slider
+-- Tạo slider chỉnh tốc độ bay
 PlayerTab:CreateSlider({
     Name = "Fly Speed",
-    Range = {10, 300},
-    Increment = 5,
-    Suffix = "stud/s",
+    Range = {0.5, 10},
+    Increment = 0.1,
+    Suffix = "x",
     CurrentValue = flySpeed,
     Callback = function(Value)
         flySpeed = Value
-        if flying then
-            bodyVelocity.Velocity = Vector3.new(0, FlySpeed, 0)
-        end
     end,
 })
 
