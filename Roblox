@@ -420,3 +420,45 @@ end)
 game.Players.PlayerRemoving:Connect(function(player)
     removeESP(player)
 end)
+
+------SELL TAB (Bán đồ)--------
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local sellRemote = ReplicatedStorage:WaitForChild("SellRemote")
+
+local function sellAllItems()
+    local player = game.Players.LocalPlayer
+    local backpack = player.Backpack
+    local toolsToSell = {}
+
+    -- Lọc tất cả các công cụ có thể bán
+    for _, item in pairs(backpack:GetChildren()) do
+        if item:IsA("Tool") then
+            table.insert(toolsToSell, item)
+        end
+    end
+
+    -- Gửi yêu cầu bán đồ cho Server
+    if #toolsToSell > 0 then
+        sellRemote:FireServer(toolsToSell)
+    end
+end
+
+MainTab:CreateButton({
+    Name = "Bán Tất Cả Đồ",
+    Callback = function()
+        sellAllItems()
+    end
+})
+
+-- Thêm tính năng Toggle bán đồ tự động
+local AutoSellEnabled = false
+MainTab:CreateToggle({
+    Name = "Bán Tự Động",
+    CurrentValue = false,
+    Callback = function(Value)
+        AutoSellEnabled = Value
+        if AutoSellEnabled then
+            sellAllItems()  -- Bán ngay khi bật chế độ tự động
+        end
+    end
+})
