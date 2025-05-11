@@ -47,7 +47,6 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
-
 local autoHarvest = false
 local harvestConnection
 
@@ -68,10 +67,14 @@ MainTab:CreateToggle({
                             if fruits then
                                 for _, fruit in pairs(fruits:GetChildren()) do
                                     local grow = fruit:FindFirstChild("Grow")
-                                    if grow and grow:FindFirstChild("2") then
-                                        local prompt = grow["2"]:FindFirstChildWhichIsA("ProximityPrompt")
-                                        if prompt and prompt:IsA("ProximityPrompt") and prompt.Enabled then
-                                            fireproximityprompt(prompt)
+                                    if grow then
+                                        for _, part in pairs(grow:GetChildren()) do
+                                            if part:IsA("BasePart") then
+                                                local prompt = part:FindFirstChildWhichIsA("ProximityPrompt")
+                                                if prompt and prompt.Enabled then
+                                                    fireproximityprompt(prompt)
+                                                end
+                                            end
                                         end
                                     end
                                 end
@@ -88,7 +91,6 @@ MainTab:CreateToggle({
         end
     end,
 })
-
 ------CREDIT------
 local Button = CreditTab:CreateButton({
    Name = "Click To See What Happen:)",
