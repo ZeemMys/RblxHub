@@ -48,49 +48,47 @@ local CreditTab = Window:CreateTab("Credit", 4483362458)
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local sellRemote = ReplicatedStorage:WaitForChild("SellRemote")
+local autoHarvest = false
+local harvestConnection
 
-local function sellAllItems()
-    local player = game.Players.LocalPlayer
-    local backpack = player.Backpack
-    local toolsToSell = {}
-
-    -- Lọc tất cả các công cụ có thể bán
-    for _, item in pairs(backpack:GetChildren()) do
-        if item:IsA("Tool") then
-            table.insert(toolsToSell, item)
-        end
-    end
-
-    -- Gửi yêu cầu bán đồ cho Server
-    if #toolsToSell > 0 then
-        sellRemote:FireServer(toolsToSell)
-    end
-end
-
--- Thêm Button bán tất cả đồ
-MainTab:CreateButton({
-    Name = "Bán Tất Cả Đồ",
-    Callback = function()
-        print("Bán Tất Cả Đồ clicked")  -- Debugging message
-        sellAllItems()
-    end
-})
-
--- Toggle bán tự động
-local AutoSellEnabled = false
-MainTab:CreateToggle({
-    Name = "Bán Tự Động",
+PlayerTab:CreateToggle({
+    Name = "Auto Harvest + Sell",
     CurrentValue = false,
+    Flag = "AutoHarvestToggle",
     Callback = function(Value)
-        AutoSellEnabled = Value
-        print("Bán Tự Động toggled to: " .. tostring(Value))  -- Debugging message
-        if AutoSellEnabled then
-            sellAllItems()  -- Bán ngay khi bật chế độ tự động
+        autoHarvest = Value
+        if autoHarvest then
+            local player = game.Players.LocalPlayer
+            local character = player.Character or player.CharacterAdded:Wait()
+            local hrp = character:WaitForChild("HumanoidRootPart")
+            local plantFolder = workspace:WaitForChild("Farm"):WaitForChild("Farm"):WaitForChild("Important"):WaitForChild("Plant&Physical")
+            local sellRemote = game.ReplicatedStorage:WaitForChild("SellRemote")
+
+            harvestConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                for _, plant in pairs(plantFolder:GetChildren()) do
+                    if plant:IsA("Model") and #plant:GetChildren() > 0 then
+                        for _, obj in pairs(plant:GetDescendants()) do
+                            if obj:IsA("BasePart") and obj.Name:lower():match("part") then
+                                if (hrp.Position - obj.Position).Magnitude <= 10 then
+                                    firetouchinterest(hrp, obj, 0)
+                                    firetouchinterest(hrp, obj, 1)
+                                    -- Gọi remote bán sau khi chạm
+                                    sellRemote:FireServer()
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        else
+            if harvestConnection then
+                harvestConnection:Disconnect()
+                harvestConnection = nil
+            end
         end
-    end
+    end,
 })
+
 ------CREDIT------
 local Button = CreditTab:CreateButton({
    Name = "Click To See What Happen:)",
