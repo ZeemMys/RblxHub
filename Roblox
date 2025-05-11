@@ -55,6 +55,63 @@ local Button = CreditTab:CreateButton({
    end
 })
 
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Debris = game:GetService("Debris")
+
+local LocalPlayer = Players.LocalPlayer
+local Backpack = LocalPlayer:WaitForChild("Backpack")
+
+local SellRemote = ReplicatedStorage:WaitForChild("SellRemote") -- Đặt tên đúng theo remote của game bạn
+local CalculatePlantValue = require(ReplicatedStorage.Modules.CalculatePlantValue)
+local Top_Text = require(ReplicatedStorage.Top_Text)
+local NPC_MOD = require(ReplicatedStorage.NPC_MOD)
+
+local GUIParent = script.Parent.Parent.Parent -- nơi chứa GUI
+local UIFrame = script.Parent
+
+local function getSellableTools(container)
+	local tools = {}
+	for _, item in pairs(container:GetChildren()) do
+		if item:IsA("Tool") and item:GetAttribute("ItemType") ~= "Pet" then
+			table.insert(tools, item)
+		end
+	end
+	return tools
+end
+
+local function sellInventoryToNPC()
+	-- Ẩn UI NPC
+	UIFrame.Enabled = false
+
+	local toolsToSell = getSellableTools(Backpack)
+	if #toolsToSell == 0 then
+		Top_Text.ShowMessage(GUIParent, "Không có vật phẩm nào để bán!", 2)
+		UIFrame.Enabled = true
+		return
+	end
+
+	local totalValue = 0
+	for _, tool in pairs(toolsToSell) do
+		totalValue += CalculatePlantValue(tool)
+	end
+
+	if totalValue > 0 then
+		SellRemote:FireServer(toolsToSell) -- Gửi lên server danh sách Tool
+		Top_Text.ShowMessage(GUIParent, "Đã bán tất cả vật phẩm với giá $" .. tostring(totalValue), 3)
+	else
+		Top_Text.ShowMessage(GUIParent, "Không thể tính giá trị vật phẩm!", 2)
+	end
+
+	-- Kết thúc tương tác NPC
+	NPC_MOD.End_Speak(LocalPlayer)
+	task.wait(0.5)
+	UIFrame.Enabled = true
+end
+
+-- Gán nút bán (nếu có GUI)
+script.Parent.SellButton.MouseButton1Click:Connect(sellInventoryToNPC)
+
 local autoHarvest = false
 local harvestConnection
 
