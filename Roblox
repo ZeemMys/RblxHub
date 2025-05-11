@@ -70,7 +70,13 @@ MainTab:CreateToggle({
                                                 if part:IsA("BasePart") then
                                                     local prompt = part:FindFirstChildWhichIsA("ProximityPrompt", true)
                                                     if prompt and prompt.Enabled then
-                                                        fireproximityprompt(prompt)
+                                                        -- Teleport tới fruit
+                                                        local character = game.Players.LocalPlayer.Character
+                                                        if character and character:FindFirstChild("HumanoidRootPart") then
+                                                            character.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 3, 0)
+                                                            task.wait(0.2) -- đợi nhân vật tới nơi
+                                                            fireproximityprompt(prompt)
+                                                        end
                                                     end
                                                 end
                                             end
