@@ -440,7 +440,7 @@ PlayerTab:CreateToggle({
 -- Fly Speed Slider
 PlayerTab:CreateSlider({
     Name = "Fly Speed",
-    Range = {10, 200},
+    Range = {10, 300},
     Increment = 5,
     Suffix = "stud/s",
     CurrentValue = flySpeed,
