@@ -120,10 +120,21 @@ CreditTab:CreateToggle({
     Callback = function(Value)
         if Value then
             -- Tìm mô hình "Seed Stands" và "Sell Stands" trong workspace
-            local seedStands = workspace:FindFirstChild("Seed Stands")
-            local sellStands = workspace:FindFirstChild("Sell Stands")
+            local seedStands = nil
+            local sellStands = nil
 
-            -- Kiểm tra nếu các mô hình tồn tại
+            -- Duyệt qua tất cả các đối tượng trong workspace để tìm mô hình
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("Model") then
+                    if obj.Name == "Seed Stands" then
+                        seedStands = obj
+                    elseif obj.Name == "Sell Stands" then
+                        sellStands = obj
+                    end
+                end
+            end
+
+            -- Kiểm tra nếu mô hình không tồn tại
             if not seedStands then
                 warn("Không tìm thấy mô hình 'Seed Stands'")
             end
@@ -143,6 +154,7 @@ CreditTab:CreateToggle({
             if seedStands then
                 for _, obj in ipairs(seedStands:GetDescendants()) do
                     if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        print("Xóa part: " .. obj.Name)  -- Thêm dòng này để debug
                         obj:Destroy()
                     end
                 end
@@ -152,6 +164,7 @@ CreditTab:CreateToggle({
             if sellStands then
                 for _, obj in ipairs(sellStands:GetDescendants()) do
                     if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        print("Xóa part: " .. obj.Name)  -- Thêm dòng này để debug
                         obj:Destroy()
                     end
                 end
