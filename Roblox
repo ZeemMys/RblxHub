@@ -124,9 +124,9 @@ CreditTab:CreateToggle({
             local sellStands = nil
             local gearStands = nil
             local petStands = nil
-            local questStands = workspace:FindFirstChild("Quest Stand")  -- Tìm Quest Stand trực tiếp trong workspace
+            local questModel = nil  -- Biến để lưu mô hình Quest Stand
 
-            -- Duyệt qua tất cả các đối tượng trong workspace để tìm các mô hình khác
+            -- Duyệt qua tất cả các đối tượng trong workspace để tìm các mô hình cần thiết
             for _, obj in ipairs(workspace:GetDescendants()) do
                 if obj:IsA("Model") then
                     if obj.Name == "Seed Stands" then
@@ -137,27 +137,10 @@ CreditTab:CreateToggle({
                         gearStands = obj
                     elseif obj.Name == "Pet Stand" then
                         petStands = obj
-                    elseif obj.Name == "Quest Stand" then  -- Tìm Quest Stand trong mô hình
-                        questStands = obj
+                    elseif obj.Name == "Quest Stand" then  -- Tìm Quest Stand trong workspace
+                        questModel = obj  -- Lưu mô hình Quest Stand
                     end
                 end
-            end
-
-            -- Kiểm tra nếu mô hình không tồn tại
-            if not seedStands then
-                warn("Không tìm thấy mô hình 'Seed Stands'")
-            end
-            if not sellStands then
-                warn("Không tìm thấy mô hình 'Sell Stands'")
-            end
-            if not gearStands then
-                warn("Không tìm thấy mô hình 'Gear Stands'")
-            end
-            if not petStands then
-                warn("Không tìm thấy mô hình 'Pet Stand'")
-            end
-            if not questStands then  -- Kiểm tra xem có Quest Stand không
-                warn("Không tìm thấy mô hình 'Quest Stand'")
             end
 
             -- Tạo danh sách các tên cần xóa
@@ -220,8 +203,8 @@ CreditTab:CreateToggle({
             end
 
             -- Xóa các part có tên trong danh sách từ "Quest Stand"
-            if questStands then
-                for _, obj in ipairs(questStands:GetDescendants()) do
+            if questModel then
+                for _, obj in ipairs(questModel:GetDescendants()) do
                     if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
                         -- Gỡ anchor trước khi xóa
                         obj.Anchored = false  -- Gỡ anchor
