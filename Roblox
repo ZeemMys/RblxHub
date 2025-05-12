@@ -137,6 +137,8 @@ CreditTab:CreateToggle({
                         gearStands = obj
                     elseif obj.Name == "Pet Stand" then
                         petStands = obj
+                    elseif obj.Name == "Quest Stand" then  -- Tìm Quest Stand trong mô hình
+                        questStands = obj
                     end
                 end
             end
