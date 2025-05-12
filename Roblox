@@ -133,7 +133,8 @@ CreditTab:CreateToggle({
             local namesToDelete = {
                 "Part",
                 "Crooked Plank",
-                "Crooked Plank2"
+                "Crooked Plank2",
+                "Shop Stands"
             }
 
             for _, model in ipairs(stands) do
