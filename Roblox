@@ -154,8 +154,10 @@ CreditTab:CreateToggle({
             if seedStands then
                 for _, obj in ipairs(seedStands:GetDescendants()) do
                     if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        -- Gỡ anchor trước khi xóa
+                        obj.Anchored = false  -- Gỡ anchor
                         print("Đang xóa part: " .. obj.Name)  -- Debug: kiểm tra xem tên của part có đúng không
-                        obj:Destroy()
+                        obj:Destroy()  -- Xóa đối tượng
                     end
                 end
             end
@@ -164,8 +166,10 @@ CreditTab:CreateToggle({
             if sellStands then
                 for _, obj in ipairs(sellStands:GetDescendants()) do
                     if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        -- Gỡ anchor trước khi xóa
+                        obj.Anchored = false  -- Gỡ anchor
                         print("Đang xóa part: " .. obj.Name)  -- Debug: kiểm tra xem tên của part có đúng không
-                        obj:Destroy()
+                        obj:Destroy()  -- Xóa đối tượng
                     end
                 end
             end
