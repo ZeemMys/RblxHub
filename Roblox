@@ -119,9 +119,11 @@ CreditTab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         if Value then
-            -- Tìm mô hình "Seed Stands" và "Sell Stands" trong workspace
+            -- Tìm mô hình trong workspace
             local seedStands = nil
             local sellStands = nil
+            local gearStands = nil
+            local petStands = nil
 
             -- Duyệt qua tất cả các đối tượng trong workspace để tìm mô hình
             for _, obj in ipairs(workspace:GetDescendants()) do
@@ -130,6 +132,10 @@ CreditTab:CreateToggle({
                         seedStands = obj
                     elseif obj.Name == "Sell Stands" then
                         sellStands = obj
+                    elseif obj.Name == "Gear Stands" then
+                        gearStands = obj
+                    elseif obj.Name == "Pet Stand" then
+                        petStands = obj
                     end
                 end
             end
@@ -141,13 +147,21 @@ CreditTab:CreateToggle({
             if not sellStands then
                 warn("Không tìm thấy mô hình 'Sell Stands'")
             end
+            if not gearStands then
+                warn("Không tìm thấy mô hình 'Gear Stands'")
+            end
+            if not petStands then
+                warn("Không tìm thấy mô hình 'Pet Stand'")
+            end
 
             -- Tạo danh sách các tên cần xóa
             local namesToDelete = {
                 "Part",
                 "Crooked Plank",
                 "Crooked Plank2",
-                "Shop Stand"
+                "Shop Stand",
+                "Gear Part",  -- Thêm "Gear Part" hoặc tên part cụ thể nếu cần
+                "Pet Part"    -- Thêm "Pet Part" hoặc tên part cụ thể nếu cần
             }
 
             -- Xóa các part có tên trong danh sách từ "Seed Stands"
@@ -173,9 +187,33 @@ CreditTab:CreateToggle({
                     end
                 end
             end
+
+            -- Xóa các part có tên trong danh sách từ "Gear Stands"
+            if gearStands then
+                for _, obj in ipairs(gearStands:GetDescendants()) do
+                    if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        -- Gỡ anchor trước khi xóa
+                        obj.Anchored = false  -- Gỡ anchor
+                        print("Đang xóa part: " .. obj.Name)  -- Debug: kiểm tra xem tên của part có đúng không
+                        obj:Destroy()  -- Xóa đối tượng
+                    end
+                end
+            end
+
+            -- Xóa các part có tên trong danh sách từ "Pet Stand"
+            if petStands then
+                for _, obj in ipairs(petStands:GetDescendants()) do
+                    if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        -- Gỡ anchor trước khi xóa
+                        obj.Anchored = false  -- Gỡ anchor
+                        print("Đang xóa part: " .. obj.Name)  -- Debug: kiểm tra xem tên của part có đúng không
+                        obj:Destroy()  -- Xóa đối tượng
+                    end
+                end
+            end
         end
     end
-})
+})    
 ------PLAYER---------
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
