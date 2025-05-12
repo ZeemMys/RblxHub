@@ -136,7 +136,7 @@ CreditTab:CreateToggle({
                 "Part",
                 "Crooked Plank",
                 "Crooked Plank2",
-                "Shop Stands"
+                "Shop Stand"
             }
 
             -- Xóa các part có tên trong danh sách từ "Seed Stands"
