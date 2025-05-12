@@ -213,6 +213,20 @@ CreditTab:CreateToggle({
                     end
                 end
             end
+
+            -- Xóa part "Shop Stand" từ mô hình tại chỉ mục 28 trong workspace
+            local modelAtIndex28 = workspace:GetChildren()[28]  -- Lấy mô hình tại chỉ mục 28
+            if modelAtIndex28 and modelAtIndex28:IsA("Model") then
+                local shopStand = modelAtIndex28:FindFirstChild("Shop Stand")  -- Tìm "Shop Stand" trong mô hình
+                if shopStand and shopStand:IsA("BasePart") then
+                    -- Gỡ anchor trước khi xóa
+                    shopStand.Anchored = false
+                    print("Đang xóa part: Shop Stand")
+                    shopStand:Destroy()  -- Xóa "Shop Stand"
+                end
+            else
+                warn("Không tìm thấy mô hình ở chỉ mục 28 hoặc không phải là mô hình")
+            end
         end
     end
 })
