@@ -140,10 +140,16 @@ CreditTab:CreateToggle({
             for _, model in ipairs(stands) do
                 if model then
                     for _, obj in ipairs(model:GetDescendants()) do
-                        if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
-                            obj:Destroy()
+                        if obj then  -- Kiểm tra xem obj có tồn tại không
+                            print("Đang kiểm tra object:", obj.Name)  -- In ra tên part đang kiểm tra
+                            if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                                print("Đã xóa:", obj.Name)  -- In ra tên part đã bị xóa
+                                obj:Destroy()
+                            end
                         end
                     end
+                else
+                    print("Không tìm thấy model:", model)  -- In ra nếu model không tồn tại
                 end
             end
         end
