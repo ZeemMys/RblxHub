@@ -115,7 +115,7 @@ local Button = CreditTab:CreateButton({
 })
 
 CreditTab:CreateToggle({
-    Name = "Xoá các Part không cần thiết",
+    Name = "Xoá Part",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
