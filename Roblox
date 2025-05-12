@@ -113,6 +113,35 @@ local Button = CreditTab:CreateButton({
        end
    end
 })
+
+CreditTab:CreateToggle({
+    Name = "Xoá các Part không cần thiết",
+    CurrentValue = false,
+    Callback = function(Value)
+        if Value then
+            local paths = {
+                workspace:FindFirstChild("file NPCS"):FindFirstChild("Seed Stands"),
+                workspace:FindFirstChild("file NPCS"):FindFirstChild("Sell Stands")
+            }
+
+            local namesToDelete = {
+                "Part",
+                "Crooked Plank",
+                "Crooked Plank2"
+            }
+
+            for _, folder in pairs(paths) do
+                if folder then
+                    for _, obj in pairs(folder:GetChildren()) do
+                        if table.find(namesToDelete, obj.Name) and obj:IsA("BasePart") then
+                            obj:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end
+})
 ------PLAYER---------
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
