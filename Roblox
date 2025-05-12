@@ -119,9 +119,15 @@ CreditTab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         if Value then
-            local paths = {
-                workspace:FindFirstChild("file NPCS"):FindFirstChild("Seed Stands"),
-                workspace:FindFirstChild("file NPCS"):FindFirstChild("Sell Stands")
+            local npcFolder = workspace:FindFirstChild("file NPCS")
+            if not npcFolder then
+                warn("Không tìm thấy 'file NPCS'")
+                return
+            end
+
+            local stands = {
+                npcFolder:FindFirstChild("Seed Stands"),
+                npcFolder:FindFirstChild("Sell Stands")
             }
 
             local namesToDelete = {
@@ -130,10 +136,10 @@ CreditTab:CreateToggle({
                 "Crooked Plank2"
             }
 
-            for _, folder in pairs(paths) do
-                if folder then
-                    for _, obj in pairs(folder:GetChildren()) do
-                        if table.find(namesToDelete, obj.Name) and obj:IsA("BasePart") then
+            for _, model in ipairs(stands) do
+                if model then
+                    for _, obj in ipairs(model:GetDescendants()) do
+                        if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
                             obj:Destroy()
                         end
                     end
