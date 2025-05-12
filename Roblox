@@ -124,6 +124,7 @@ CreditTab:CreateToggle({
             local sellStands = nil
             local gearStands = nil
             local petStands = nil
+            local questStands = nil  -- Thêm Quest Stand
 
             -- Duyệt qua tất cả các đối tượng trong workspace để tìm mô hình
             for _, obj in ipairs(workspace:GetDescendants()) do
@@ -136,6 +137,8 @@ CreditTab:CreateToggle({
                         gearStands = obj
                     elseif obj.Name == "Pet Stand" then
                         petStands = obj
+                    elseif obj.Name == "Quest Stand" then  -- Thêm điều kiện kiểm tra "Quest Stand"
+                        questStands = obj
                     end
                 end
             end
@@ -153,6 +156,9 @@ CreditTab:CreateToggle({
             if not petStands then
                 warn("Không tìm thấy mô hình 'Pet Stand'")
             end
+            if not questStands then  -- Thêm kiểm tra "Quest Stand"
+                warn("Không tìm thấy mô hình 'Quest Stand'")
+            end
 
             -- Tạo danh sách các tên cần xóa
             local namesToDelete = {
@@ -161,7 +167,8 @@ CreditTab:CreateToggle({
                 "Crooked Plank2",
                 "Shop Stand",
                 "Gear Part",  -- Thêm "Gear Part" hoặc tên part cụ thể nếu cần
-                "Pet Part"    -- Thêm "Pet Part" hoặc tên part cụ thể nếu cần
+                "Pet Part",   -- Thêm "Pet Part" hoặc tên part cụ thể nếu cần
+                "Quest Part"  -- Thêm "Quest Part" hoặc tên part cụ thể nếu cần
             }
 
             -- Xóa các part có tên trong danh sách từ "Seed Stands"
@@ -211,9 +218,21 @@ CreditTab:CreateToggle({
                     end
                 end
             end
+
+            -- Xóa các part có tên trong danh sách từ "Quest Stand"
+            if questStands then
+                for _, obj in ipairs(questStands:GetDescendants()) do
+                    if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        -- Gỡ anchor trước khi xóa
+                        obj.Anchored = false  -- Gỡ anchor
+                        print("Đang xóa part: " .. obj.Name)  -- Debug: kiểm tra xem tên của part có đúng không
+                        obj:Destroy()  -- Xóa đối tượng
+                    end
+                end
+            end
         end
     end
-})    
+})
 ------PLAYER---------
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
