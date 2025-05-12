@@ -119,37 +119,40 @@ CreditTab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         if Value then
-            local npcFolder = workspace:FindFirstChild("file NPCS")
-            if not npcFolder then
-                warn("Không tìm thấy 'file NPCS'")
-                return
+            -- Tìm mô hình "Seed Stands" và "Sell Stands" trong workspace
+            local seedStands = workspace:FindFirstChild("Seed Stands")
+            local sellStands = workspace:FindFirstChild("Sell Stands")
+
+            -- Kiểm tra nếu các mô hình tồn tại
+            if not seedStands then
+                warn("Không tìm thấy mô hình 'Seed Stands'")
+            end
+            if not sellStands then
+                warn("Không tìm thấy mô hình 'Sell Stands'")
             end
 
-            local stands = {
-                npcFolder:FindFirstChild("Seed Stands"),
-                npcFolder:FindFirstChild("Sell Stands")
-            }
-
+            -- Tạo danh sách các tên cần xóa
             local namesToDelete = {
                 "Part",
                 "Crooked Plank",
-                "Crooked Plank2",
-                "Shop Stands"
+                "Crooked Plank2"
             }
 
-            for _, model in ipairs(stands) do
-                if model then
-                    for _, obj in ipairs(model:GetDescendants()) do
-                        if obj then  -- Kiểm tra xem obj có tồn tại không
-                            print("Đang kiểm tra object:", obj.Name)  -- In ra tên part đang kiểm tra
-                            if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
-                                print("Đã xóa:", obj.Name)  -- In ra tên part đã bị xóa
-                                obj:Destroy()
-                            end
-                        end
+            -- Xóa các part có tên trong danh sách từ "Seed Stands"
+            if seedStands then
+                for _, obj in ipairs(seedStands:GetDescendants()) do
+                    if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        obj:Destroy()
                     end
-                else
-                    print("Không tìm thấy model:", model)  -- In ra nếu model không tồn tại
+                end
+            end
+
+            -- Xóa các part có tên trong danh sách từ "Sell Stands"
+            if sellStands then
+                for _, obj in ipairs(sellStands:GetDescendants()) do
+                    if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
+                        obj:Destroy()
+                    end
                 end
             end
         end
