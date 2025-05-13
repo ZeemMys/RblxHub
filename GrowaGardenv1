@@ -247,7 +247,7 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateButton({
-    Name = "Mua Seed",  -- Nút có tên là "Mua Seed"
+    Name = "Seed GUI",  -- Nút có tên là "Mua Seed"
     Callback = function()
         -- Lấy Player và HumanoidRootPart của Player
         local player = game.Players.LocalPlayer
