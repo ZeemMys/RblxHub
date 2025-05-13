@@ -115,7 +115,7 @@ local Button = FunnyTab:CreateButton({
 })
 
 FunnyTab:CreateToggle({
-    Name = "Xoá Part | May Paused The Game In 10s |",
+    Name = "Xoá Part",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
@@ -178,10 +178,11 @@ FunnyTab:CreateToggle({
             if farmFolder and farmFolder:IsA("Folder") then
                 for _, singleFarm in ipairs(farmFolder:GetChildren()) do
                     if singleFarm:IsA("Folder") then
-                        -- Tìm mô hình Decoration trong từng folder Farm và xóa Farm Fence
+                        -- Tìm mô hình Decoration trong từng folder Farm và xóa Farm Fence nếu có
                         local decorationModel = singleFarm:FindFirstChild("Decoration")
                         if decorationModel then
                             for _, desc in ipairs(decorationModel:GetDescendants()) do
+                                -- Kiểm tra nếu có Farm Fence trong model Decoration, xóa nó
                                 if desc:IsA("Model") and desc.Name == "Farm Fence" then
                                     print("Đang xóa Farm Fence trong: ", singleFarm.Name)
                                     desc:Destroy()
@@ -189,10 +190,10 @@ FunnyTab:CreateToggle({
                             end
                         end
 
-                        -- Xóa Grow Sign trong mỗi folder Farm
+                        -- Xóa Grown_Sign trong mỗi folder Farm
                         for _, item in ipairs(singleFarm:GetDescendants()) do
-                            if (item:IsA("BasePart") or item:IsA("Model")) and item.Name == "Grow Sign" then
-                                print("Đang xóa Grow Sign trong: ", singleFarm.Name)
+                            if (item:IsA("BasePart") or item:IsA("Model")) and item.Name == "Grown_Sign" then
+                                print("Đang xóa Grown_Sign trong: ", singleFarm.Name)
                                 item:Destroy()
                             end
                         end
@@ -203,7 +204,7 @@ FunnyTab:CreateToggle({
             end
         end
     end
-})          
+})
 ------PLAYER---------
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
