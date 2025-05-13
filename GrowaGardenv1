@@ -35,10 +35,10 @@ local Window = Rayfield:CreateWindow({
  })
 
 Rayfield:Notify({
-   Title = "XIN THÔNG BÁO",
-   Content = "PHIÊN BẢN FREE",
+   Title = "CẢM ƠN ĐÃ SỬ DỤNG",
+   Content = "SDT 0856469268",
    Duration = 5,
-   Image = "0",
+   Image = "number",
 })
 
 local MainTab = Window:CreateTab("Main", 4483362458) -- Title, Image
