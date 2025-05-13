@@ -116,13 +116,20 @@ MainTab:CreateToggle({
                                         if prompt then
                                             local partToTeleport = model:IsA("Part") and model or model:FindFirstChildWhichIsA("BasePart")
                                             if partToTeleport then
-                                                -- Teleport đến cây
-                                                teleportTo(partToTeleport)
-                                                task.wait(0.5)  -- Đợi đến khi đã tele tới cây
-
-                                                -- Kích hoạt ProximityPrompt
-                                                fireproximityprompt(prompt)
-                                                task.wait(0.3)
+                                                -- Kiểm tra nếu cây có quả hoặc có thể nhổ lên
+                                                if model:FindFirstChild("Fruits") then
+                                                    -- Đây là cây có quả mọc từ thân (sầu riêng, cherry)
+                                                    teleportTo(partToTeleport)
+                                                    task.wait(0.5)
+                                                    fireproximityprompt(prompt)
+                                                    task.wait(0.3)
+                                                else
+                                                    -- Đây là cây có thể nhổ lên (tre, cà rốt)
+                                                    teleportTo(partToTeleport)
+                                                    task.wait(0.5)
+                                                    fireproximityprompt(prompt)
+                                                    task.wait(0.3)
+                                                end
                                             end
                                         end
                                     end
