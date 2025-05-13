@@ -65,7 +65,7 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Hàm teleport trực tiếp đến quả hoặc cây
+            -- Hàm teleport trực tiếp đến cây/ quả
             local function teleportTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 -- Teleport trực tiếp đến vị trí của part
@@ -101,20 +101,21 @@ MainTab:CreateToggle({
                     for _, plant in ipairs(plants:GetChildren()) do
                         if not _G.AutoHarvestUniversal then return end
 
-                        -- Nhổ cây (như carrot, tre)
+                        -- Cây nhổ (như carrot, bamboo)
                         local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
                             if mainPart then
-                                teleportTo(mainPart)  -- Teleport đến cây (carrot, bamboo)
+                                teleportTo(mainPart)  -- Teleport đến cây nhổ
                                 fireproximityprompt(prompt)
                                 task.wait(0.4)
                             end
                         end
 
-                        -- Hái cây (như cherry, raspberry)
+                        -- Cây có quả (cherry, raspberry)
                         local fruitFolder = plant:FindFirstChild("Fruits")
                         if fruitFolder then
+                            -- Lấy các phần tử con trong Fruits (có thể có folder "Grow")
                             local growFolder = fruitFolder:FindFirstChild("Grow") or fruitFolder
                             for _, fruit in ipairs(growFolder:GetChildren()) do
                                 if not _G.AutoHarvestUniversal then return end
@@ -125,7 +126,7 @@ MainTab:CreateToggle({
                                     if fruitPrompt then
                                         teleportTo(fruit)  -- Teleport đến quả
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(1)
+                                        task.wait(0.4)
                                     end
                                 end
                             end
@@ -136,7 +137,7 @@ MainTab:CreateToggle({
         end)
     end,
 })
-------Funny------
+---------Funny------------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
    Callback = function()
