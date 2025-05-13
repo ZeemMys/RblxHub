@@ -64,12 +64,12 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Hàm teleport trực tiếp đến vị trí của cây
-            local function teleTo(part)
+            -- Thay đổi hàm `tweenTo()` thành teleport trực tiếp
+            local function teleportTo(part)
                 if not part or not part:IsA("BasePart") then return end
-                local goalPosition = part.Position + Vector3.new(0, 2.5, 0)  -- Đi lên trên phần để hái
-                hrp.CFrame = CFrame.new(goalPosition)  -- Teleport đến vị trí của trái cây/cây
-                task.wait(0.5)
+                -- Teleport trực tiếp đến vị trí của part
+                hrp.CFrame = part.CFrame + Vector3.new(0, 2, 0)
+                task.wait(0.5)  -- Thời gian chờ sau khi teleport
             end
 
             local function getMyFarm()
@@ -105,9 +105,9 @@ MainTab:CreateToggle({
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
                             if mainPart then
-                                teleTo(mainPart)  -- Teleport đến cây cần hái
+                                teleportTo(mainPart)  -- Thay tween bằng teleport
                                 fireproximityprompt(prompt)
-                                task.wait(0.4)  -- Đợi một chút để thực hiện hành động
+                                task.wait(0.4)
                             end
                         end
 
@@ -121,9 +121,9 @@ MainTab:CreateToggle({
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
                                     local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if fruitPrompt then
-                                        teleTo(fruit)  -- Teleport lên trái cây để hái
+                                        teleportTo(fruit)  -- Thay tween bằng teleport
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(1)  -- Đợi một chút để thực hiện hành động
+                                        task.wait(1)
                                     end
                                 end
                             end
