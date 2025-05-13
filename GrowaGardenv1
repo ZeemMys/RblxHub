@@ -190,7 +190,7 @@ FunnyTab:CreateToggle({
                             end
                         end
 
-                        -- Xóa Grown_Sign trong mỗi folder Farm
+                        -- Xóa Grown_Sign trong mỗi folder con của Farm
                         for _, item in ipairs(singleFarm:GetDescendants()) do
                             if (item:IsA("BasePart") or item:IsA("Model")) and item.Name == "Grown_Sign" then
                                 print("Đang xóa Grown_Sign trong: ", singleFarm.Name)
