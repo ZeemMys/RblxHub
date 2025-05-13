@@ -60,11 +60,12 @@ MainTab:CreateToggle({
         end
 
         task.spawn(function()
+            local TweenService = game:GetService("TweenService")
             local Players = game:GetService("Players")
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Thay đổi hàm `tweenTo()` thành teleport trực tiếp
+            -- Hàm teleport trực tiếp
             local function teleportTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 -- Teleport trực tiếp đến vị trí của part
@@ -105,7 +106,7 @@ MainTab:CreateToggle({
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
                             if mainPart then
-                                teleportTo(mainPart)  -- Thay tween bằng teleport
+                                teleportTo(mainPart)  -- Teleport đến cây
                                 fireproximityprompt(prompt)
                                 task.wait(0.4)
                             end
@@ -119,11 +120,12 @@ MainTab:CreateToggle({
                                 if not _G.AutoHarvestUniversal then return end
 
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
+                                    -- Tìm ProximityPrompt trong trái cây
                                     local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if fruitPrompt then
-                                        teleportTo(fruit)  -- Thay tween bằng teleport
+                                        teleportTo(fruit)  -- Teleport đến quả
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(1)
+                                        task.wait(0.8)
                                     end
                                 end
                             end
