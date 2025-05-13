@@ -49,7 +49,7 @@ local FunnyTab = Window:CreateTab("Fun And Code", 4483362458)
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
 MainTab:CreateToggle({
-    Name = "Auto Harvest (Farm theo Player index)",
+    Name = "Auto Harvest",
     CurrentValue = false,
     Flag = "AutoHarvestByPlayerIndex",
     Callback = function(Value)
