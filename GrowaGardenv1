@@ -115,7 +115,7 @@ local Button = FunnyTab:CreateButton({
 })
 
 FunnyTab:CreateToggle({
-    Name = "Xoá Part",
+    Name = "Xoá Part | May Paused The Game In 10s |",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
