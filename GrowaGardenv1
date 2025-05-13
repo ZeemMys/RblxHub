@@ -140,25 +140,52 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateToggle({
-    Name = "Sell Inventory",
+    Name = "Auto Sell",
     CurrentValue = false,
     Callback = function(Value)
-        _G.AutoSellInventory = Value
+        _G.AutoTeleportSell = Value
 
         if Value then
             task.spawn(function()
-                local remote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("Sell_Inventory")
+                local TweenService = game:GetService("TweenService")
+                local player = game.Players.LocalPlayer
+                local char = player.Character or player.CharacterAdded:Wait()
+                local hrp = char:WaitForChild("HumanoidRootPart")
+                local sellRemote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("Sell_Inventory")
 
-                while _G.AutoSellInventory do
-                    if remote then
-                        remote:FireServer()
-                        print("📦 Đã tự động bán hàng trong kho!")
+                -- Tìm NPC bán hàng
+                local function findSellNPC()
+                    for _, obj in ipairs(workspace:GetDescendants()) do
+                        if obj:IsA("BasePart") and string.lower(obj.Name):find("sell") then
+                            return obj
+                        end
                     end
-                    task.wait(5) -- Thời gian giữa mỗi lần bán, bạn có thể điều chỉnh
+                    return nil
+                end
+
+                local function tweenTo(part)
+                    if not part then return end
+                    local goal = {CFrame = part.CFrame + Vector3.new(0, 3, 0)}
+                    local tween = TweenService:Create(hrp, TweenInfo.new(0.7), goal)
+                    tween:Play()
+                    tween.Completed:Wait()
+                end
+
+                while _G.AutoTeleportSell do
+                    local sellNPC = findSellNPC()
+                    if sellNPC and sellRemote then
+                        tweenTo(sellNPC)
+                        task.wait(0.5)
+                        sellRemote:FireServer()
+                        print("✅ Đã tự động bán hàng.")
+                    else
+                        warn("❌ Không tìm thấy NPC bán hàng hoặc remote Sell_Inventory")
+                    end
+                    task.wait(5) -- Chờ 10 giây mỗi lần bán
                 end
             end)
         else
-            print("⛔ Đã tắt Auto Sell Inventory")
+            print("⛔ Đã tắt Auto Teleport + Sell")
         end
     end
 })
