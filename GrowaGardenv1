@@ -117,11 +117,22 @@ MainTab:CreateToggle({
                                         -- Kiểm tra nếu cây có Fruits (cây hái như sầu riêng, cherry)
                                         local fruitsFolder = model:FindFirstChild("Fruits")
                                         if fruitsFolder then
+                                            -- Kiểm tra tất cả các quả trong Fruits
                                             for _, fruit in ipairs(fruitsFolder:GetChildren()) do
+                                                -- Kiểm tra nếu quả là Part hoặc Model có ProximityPrompt
                                                 if fruit:IsA("Part") then
                                                     local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                                     if fruitPrompt then
                                                         teleportTo(fruit) -- Di chuyển tới trái để hái
+                                                        task.wait(0.5)
+                                                        fireproximityprompt(fruitPrompt)
+                                                        task.wait(0.3)
+                                                    end
+                                                elseif fruit:IsA("Model") then
+                                                    -- Nếu quả là một Model, tìm ProximityPrompt bên trong
+                                                    local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                                    if fruitPrompt then
+                                                        teleportTo(fruit) -- Di chuyển tới Model quả để hái
                                                         task.wait(0.5)
                                                         fireproximityprompt(fruitPrompt)
                                                         task.wait(0.3)
