@@ -96,6 +96,12 @@ MainTab:CreateToggle({
                 tween.Completed:Wait()
             end
 
+            local function teleportTo(plant)
+                if not plant:IsA("BasePart") then return end
+                -- Di chuyển đến vị trí của cây
+                hrp.CFrame = plant.CFrame + Vector3.new(0, 2, 0) -- Cộng thêm Y để đứng trên cây
+            end
+
             while _G.AutoHarvestByPlayerIndex do
                 pcall(function()
                     local myFarm = getMyFarm()
@@ -108,10 +114,13 @@ MainTab:CreateToggle({
                                     if model:IsA("Model") or model:IsA("Part") then
                                         local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
                                         if prompt then
-                                            local partToTween = model:IsA("Part") and model or model:FindFirstChildWhichIsA("BasePart")
-                                            if partToTween then
-                                                tweenTo(partToTween)
-                                                task.wait(0.5)
+                                            local partToTeleport = model:IsA("Part") and model or model:FindFirstChildWhichIsA("BasePart")
+                                            if partToTeleport then
+                                                -- Teleport đến cây
+                                                teleportTo(partToTeleport)
+                                                task.wait(0.5)  -- Đợi đến khi đã tele tới cây
+
+                                                -- Kích hoạt ProximityPrompt
                                                 fireproximityprompt(prompt)
                                                 task.wait(0.3)
                                             end
