@@ -49,48 +49,80 @@ local FunnyTab = Window:CreateTab("Fun And Code", 4483362458)
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
 MainTab:CreateToggle({
-    Name = "Auto Harvest (New Structure)",
+    Name = "Auto Thu Hoạch",
     CurrentValue = false,
-    Flag = "AutoHarvestNew",
+    Flag = "AutoHarvestSmart",
     Callback = function(Value)
-        _G.AutoHarvestNew = Value
-        local TweenService = game:GetService("TweenService")
-        local Players = game:GetService("Players")
-        local player = Players.LocalPlayer
-        local hrp = player.Character:WaitForChild("HumanoidRootPart")
+        _G.AutoHarvestSmart = Value
 
-        -- Di chuyển tới đối tượng
-        local function tweenTo(part)
-            if not part:IsA("BasePart") then return end
-            local info = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
-            local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
-            local tween = TweenService:Create(hrp, info, goal)
-            tween:Play()
-            tween.Completed:Wait()
+        if not Value then
+            print("Auto Harvest đã tắt.")
+            return
         end
 
-        -- Vòng lặp Auto Harvest
-        while _G.AutoHarvestNew do
-            pcall(function()
+        spawn(function()
+            local TweenService = game:GetService("TweenService")
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+            local hrp = player.Character:WaitForChild("HumanoidRootPart")
+
+            -- Tìm farm của bạn
+            local function findMyFarm()
                 local farmFolder = workspace:FindFirstChild("Farm")
-                if farmFolder then
-                    for _, subFarm in ipairs(farmFolder:GetChildren()) do
-                        if subFarm:IsA("Folder") then
-                            local important = subFarm:FindFirstChild("Important")
-                            local plants = important and important:FindFirstChild("Plants_Physical")
-                            if plants then
-                                for _, plantType in ipairs(plants:GetChildren()) do
-                                    for _, model in ipairs(plantType:GetChildren()) do
-                                        if model:IsA("Model") or model:IsA("Part") then
-                                            local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                            if prompt then
-                                                local partToTween = model:IsA("Part") and model or model:FindFirstChildWhichIsA("BasePart")
-                                                if partToTween then
-                                                    tweenTo(partToTween)
-                                                    task.wait(0.6)
-                                                    fireproximityprompt(prompt)
-                                                    task.wait(0.3)
-                                                end
+                if not farmFolder then return nil end
+
+                for _, farm in ipairs(farmFolder:GetChildren()) do
+                    if farm:IsA("Folder") or farm:IsA("Model") then
+                        -- Tìm chữ chứa tên người chơi
+                        local found = false
+                        for _, descendant in ipairs(farm:GetDescendants()) do
+                            if descendant:IsA("TextLabel") or descendant:IsA("StringValue") then
+                                if string.lower(descendant.Text or descendant.Value or ""):find(string.lower(player.Name)) then
+                                    found = true
+                                    break
+                                end
+                            end
+                        end
+
+                        if found then
+                            print("Đã tìm thấy farm của bạn: " .. farm.Name)
+                            return farm
+                        end
+                    end
+                end
+
+                warn("Không tìm thấy farm nào chứa tên của bạn!")
+                return nil
+            end
+
+            local function tweenTo(part)
+                if not part:IsA("BasePart") then return end
+                local info = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
+                local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
+                local tween = TweenService:Create(hrp, info, goal)
+                tween:Play()
+                tween.Completed:Wait()
+            end
+
+            -- Chạy auto harvest
+            while _G.AutoHarvestSmart do
+                pcall(function()
+                    local myFarm = findMyFarm()
+                    if myFarm then
+                        local important = myFarm:FindFirstChild("Important")
+                        local plants = important and important:FindFirstChild("Plants_Physical")
+                        if plants then
+                            for _, plantType in ipairs(plants:GetChildren()) do
+                                for _, model in ipairs(plantType:GetChildren()) do
+                                    if model:IsA("Model") or model:IsA("Part") then
+                                        local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                        if prompt then
+                                            local partToTween = model:IsA("Part") and model or model:FindFirstChildWhichIsA("BasePart")
+                                            if partToTween then
+                                                tweenTo(partToTween)
+                                                task.wait(0.5)
+                                                fireproximityprompt(prompt)
+                                                task.wait(0.3)
                                             end
                                         end
                                     end
@@ -98,10 +130,10 @@ MainTab:CreateToggle({
                             end
                         end
                     end
-                end
-            end)
-            task.wait(1.5)
-        end
+                end)
+                task.wait(2)
+            end
+        end)
     end,
 })
 ------Funny------
