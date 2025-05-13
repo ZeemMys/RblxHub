@@ -119,7 +119,8 @@ FunnyTab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         if Value then
-            -- Tìm mô hình trong workspace
+            print("Toggle 'Xoá Part' được bật")
+
             local seedStands = nil
             local sellStands = nil
             local gearStands = nil
@@ -168,19 +169,7 @@ FunnyTab:CreateToggle({
             if petStands then deletePartsFromModel(petStands) end
             if questModel then deletePartsFromModel(questModel) end
 
-            local modelAtIndex28 = workspace:GetChildren()[28]
-            if modelAtIndex28 and modelAtIndex28:IsA("Model") then
-                local shopStand = modelAtIndex28:FindFirstChild("Shop Stand")
-                if shopStand and shopStand:IsA("BasePart") then
-                    shopStand.Anchored = false
-                    print("Đang xóa part: Shop Stand")
-                    shopStand:Destroy()
-                end
-            else
-                warn("Không tìm thấy mô hình ở chỉ mục 28 hoặc không phải là mô hình")
-            end
-
-            -- Xử lý các Farm Folder bên trong workspace.Farm
+            -- GIỮ LẠI: Xử lý các Farm Folder bên trong workspace.Farm
             local farmFolder = workspace:FindFirstChild("Farm")
             if farmFolder and farmFolder:IsA("Folder") then
                 for _, singleFarm in ipairs(farmFolder:GetChildren()) do
