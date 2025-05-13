@@ -147,7 +147,6 @@ MainTab:CreateToggle({
 
         if Value then
             task.spawn(function()
-                local TweenService = game:GetService("TweenService")
                 local player = game.Players.LocalPlayer
                 local hrp = player.Character:WaitForChild("HumanoidRootPart")
                 local sellRemote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("Sell_Inventory")
@@ -158,29 +157,20 @@ MainTab:CreateToggle({
                     return
                 end
 
-                local function tweenToSell()
-                    local goal = {CFrame = sellPoint.CFrame + Vector3.new(0, 3, 0)}
-                    local tween = TweenService:Create(hrp, TweenInfo.new(0.8), goal)
-                    tween:Play()
-                    tween.Completed:Wait()
-                end
-
                 while _G.AutoTeleportSell do
                     pcall(function()
-                        tweenToSell()
+                        hrp.CFrame = sellPoint.CFrame + Vector3.new(0, 3, 0) -- Teleport trực tiếp
                         task.wait(0.5)
                         if sellRemote then
                             sellRemote:FireServer()
-                            print("✅ Đã tự động bán hàng.")
-                        else
-                            warn("❌ Không tìm thấy remote Sell_Inventory")
+                            print("✅ Đã bán hàng (Teleport nhanh).")
                         end
                     end)
-                    task.wait(10) -- Thời gian giữa mỗi lần bán
+                    task.wait(10) -- Lặp lại sau mỗi 10 giây
                 end
             end)
         else
-            print("⛔ Auto Sell đã bị tắt.")
+            print("⛔ Đã tắt Auto Sell (Teleport)")
         end
     end
 })
