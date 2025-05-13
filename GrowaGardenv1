@@ -49,11 +49,11 @@ local FunnyTab = Window:CreateTab("Fun And Code", 4483362458)
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
 MainTab:CreateToggle({
-    Name = "Auto Thu Hoạch",
+    Name = "Auto Harvest (Tự tìm farm theo tên Sign)",
     CurrentValue = false,
-    Flag = "AutoHarvestSmart",
+    Flag = "AutoHarvestBySign",
     Callback = function(Value)
-        _G.AutoHarvestSmart = Value
+        _G.AutoHarvestBySign = Value
 
         if not Value then
             print("Auto Harvest đã tắt.")
@@ -66,35 +66,32 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Tìm farm của bạn
+            -- Tìm farm của bạn bằng Sign
             local function findMyFarm()
                 local farmFolder = workspace:FindFirstChild("Farm")
                 if not farmFolder then return nil end
 
                 for _, farm in ipairs(farmFolder:GetChildren()) do
                     if farm:IsA("Folder") or farm:IsA("Model") then
-                        -- Tìm chữ chứa tên người chơi
-                        local found = false
-                        for _, descendant in ipairs(farm:GetDescendants()) do
-                            if descendant:IsA("TextLabel") or descendant:IsA("StringValue") then
-                                if string.lower(descendant.Text or descendant.Value or ""):find(string.lower(player.Name)) then
-                                    found = true
-                                    break
+                        local signModel = farm:FindFirstChild("Sign")
+                        if signModel then
+                            for _, desc in ipairs(signModel:GetDescendants()) do
+                                if desc:IsA("TextLabel") or desc:IsA("TextBox") then
+                                    if string.lower(desc.Text):find(string.lower(player.Name)) then
+                                        print("✅ Farm của bạn là: " .. farm.Name)
+                                        return farm
+                                    end
                                 end
                             end
-                        end
-
-                        if found then
-                            print("Đã tìm thấy farm của bạn: " .. farm.Name)
-                            return farm
                         end
                     end
                 end
 
-                warn("Không tìm thấy farm nào chứa tên của bạn!")
+                warn("❌ Không tìm thấy farm nào có tên bạn trong Sign.")
                 return nil
             end
 
+            -- Tween đến một part
             local function tweenTo(part)
                 if not part:IsA("BasePart") then return end
                 local info = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
@@ -104,8 +101,8 @@ MainTab:CreateToggle({
                 tween.Completed:Wait()
             end
 
-            -- Chạy auto harvest
-            while _G.AutoHarvestSmart do
+            -- Vòng lặp Auto Harvest
+            while _G.AutoHarvestBySign do
                 pcall(function()
                     local myFarm = findMyFarm()
                     if myFarm then
