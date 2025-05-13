@@ -246,20 +246,36 @@ MainTab:CreateToggle({
     end
 })
 
-MainTab:CreateButton({
-    Name = "Hiện bảng bán Seed",
-    Callback = function()
-        local prompt = workspace:FindFirstChild("NPCS")
-            and workspace.NPCS:FindFirstChild("Sam")
-            and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart")
-            and workspace.NPCS.Sam.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
+local autoPromptDistance = false
 
-        if prompt then
-            prompt.MaxActivationDistance = 200  -- 👈 Tăng khoảng cách lên 200 studs
-            fireproximityprompt(prompt)
-            print("✅ Đã kích hoạt bảng bán seed từ NPC Sam.")
+MainTab:CreateToggle({
+    Name = "Hiện bảng seed",
+    CurrentValue = false,
+    Callback = function(Value)
+        autoPromptDistance = Value
+
+        if Value then
+            task.spawn(function()
+                while autoPromptDistance do
+                    local prompt = workspace:FindFirstChild("NPCS")
+                        and workspace.NPCS:FindFirstChild("Sam")
+                        and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart")
+                        and workspace.NPCS.Sam.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
+
+                    if prompt then
+                        prompt.MaxActivationDistance = 200
+                        task.wait(1)
+                        prompt.MaxActivationDistance = 10
+                        print("🔁 Đã chỉnh khoảng cách: 200 -> 10")
+                    else
+                        warn("❌ Không tìm thấy ProximityPrompt của Sam.")
+                    end
+
+                    task.wait(1) -- lặp mỗi 1 giây
+                end
+            end)
         else
-            warn("❌ Không tìm thấy ProximityPrompt của NPC Sam.")
+            print("⛔ Đã tắt auto chỉnh khoảng cách ProximityPrompt.")
         end
     end
 })
