@@ -53,12 +53,13 @@ MainTab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         _G.AutoHarvestUniversal = Value
+
         if not Value then
             print("⛔ Đã tắt Auto Harvest")
             return
         end
 
-        spawn(function()
+        task.spawn(function()
             local TweenService = game:GetService("TweenService")
             local Players = game:GetService("Players")
             local player = Players.LocalPlayer
@@ -70,7 +71,7 @@ MainTab:CreateToggle({
                 local tween = TweenService:Create(hrp, TweenInfo.new(0.8), goal)
                 tween:Play()
                 tween.Completed:Wait()
-                task.wait(0.5) -- Thời gian chờ sau khi bay đến để ổn định
+                task.wait(0.5)
             end
 
             local function getMyFarm()
@@ -88,10 +89,9 @@ MainTab:CreateToggle({
                 return farms[myIndex]
             end
 
-            while _G.AutoHarvestUniversal do
+            while task.wait(1.2) do
+                if not _G.AutoHarvestUniversal then break end
                 pcall(function()
-                    if not _G.AutoHarvestUniversal then return end
-
                     local myFarm = getMyFarm()
                     if not myFarm then return end
 
@@ -102,21 +102,22 @@ MainTab:CreateToggle({
                     for _, plant in ipairs(plants:GetChildren()) do
                         if not _G.AutoHarvestUniversal then return end
 
-                        -- Cây nhổ
+                        -- Nhổ cây (như carrot, tre)
                         local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
                             if mainPart then
                                 tweenTo(mainPart)
                                 fireproximityprompt(prompt)
-                                task.wait(0.6)
+                                task.wait(0.4)
                             end
                         end
 
-                        -- Cây hái trái
-                        local fruitFolder = plant:FindFirstChild("Fruits") or plant:FindFirstChild("Grow")
+                        -- Hái cây (như cherry, raspberry)
+                        local fruitFolder = plant:FindFirstChild("Fruits")
                         if fruitFolder then
-                            for _, fruit in ipairs(fruitFolder:GetChildren()) do
+                            local growFolder = fruitFolder:FindFirstChild("Grow") or fruitFolder
+                            for _, fruit in ipairs(growFolder:GetChildren()) do
                                 if not _G.AutoHarvestUniversal then return end
 
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
@@ -124,14 +125,13 @@ MainTab:CreateToggle({
                                     if fruitPrompt then
                                         tweenTo(fruit)
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(0.5)
+                                        task.wait(0.4)
                                     end
                                 end
                             end
                         end
                     end
                 end)
-                task.wait(1.5) -- Delay giữa mỗi lần quét
             end
         end)
     end,
