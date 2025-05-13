@@ -49,14 +49,14 @@ local FunnyTab = Window:CreateTab("Fun And Code", 4483362458)
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
 
 MainTab:CreateToggle({
-    Name = "Auto Harvest",
+    Name = "Auto Harvest (Farm theo Player index)",
     CurrentValue = false,
-    Flag = "AutoHarvestBySign",
+    Flag = "AutoHarvestByPlayerIndex",
     Callback = function(Value)
-        _G.AutoHarvestBySign = Value
+        _G.AutoHarvestByPlayerIndex = Value
 
         if not Value then
-            print("Auto Harvest đã tắt.")
+            print("Đã tắt Auto Harvest")
             return
         end
 
@@ -66,32 +66,27 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Tìm farm của bạn bằng Sign
-            local function findMyFarm()
+            -- Xác định index của người chơi
+            local function getMyFarm()
+                local allPlayers = Players:GetPlayers()
+                table.sort(allPlayers, function(a, b)
+                    return a.Name < b.Name
+                end)
+
+                local myIndex = table.find(allPlayers, player)
+                if not myIndex then return nil end
+
                 local farmFolder = workspace:FindFirstChild("Farm")
                 if not farmFolder then return nil end
 
-                for _, farm in ipairs(farmFolder:GetChildren()) do
-                    if farm:IsA("Folder") or farm:IsA("Model") then
-                        local signModel = farm:FindFirstChild("Sign")
-                        if signModel then
-                            for _, desc in ipairs(signModel:GetDescendants()) do
-                                if desc:IsA("TextLabel") or desc:IsA("TextBox") then
-                                    if string.lower(desc.Text):find(string.lower(player.Name)) then
-                                        print("✅ Farm của bạn là: " .. farm.Name)
-                                        return farm
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
+                local farms = farmFolder:GetChildren()
+                table.sort(farms, function(a, b)
+                    return a.Name < b.Name
+                end)
 
-                warn("❌ Không tìm thấy farm nào có tên bạn trong Sign.")
-                return nil
+                return farms[myIndex]
             end
 
-            -- Tween đến một part
             local function tweenTo(part)
                 if not part:IsA("BasePart") then return end
                 local info = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
@@ -101,10 +96,9 @@ MainTab:CreateToggle({
                 tween.Completed:Wait()
             end
 
-            -- Vòng lặp Auto Harvest
-            while _G.AutoHarvestBySign do
+            while _G.AutoHarvestByPlayerIndex do
                 pcall(function()
-                    local myFarm = findMyFarm()
+                    local myFarm = getMyFarm()
                     if myFarm then
                         local important = myFarm:FindFirstChild("Important")
                         local plants = important and important:FindFirstChild("Plants_Physical")
