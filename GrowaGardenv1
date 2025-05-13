@@ -115,7 +115,7 @@ local Button = FunnyTab:CreateButton({
 })
 
 FunnyTab:CreateToggle({
-    Name = "Xoá Part |Chờ ít giây ok?|",
+    Name = "Xoá Part |CHỜ ÍT GIÂY OK?|",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
@@ -180,20 +180,23 @@ FunnyTab:CreateToggle({
                     if singleFarm:IsA("Folder") then
                         print("Đang kiểm tra folder: " .. singleFarm.Name)
 
-                        -- Tìm mô hình Decoration trong từng folder Farm và xóa Farm Fence nếu có
+                        -- Kiểm tra nếu có mô hình Decoration và xóa Farm Fence nếu có
                         local decorationModel = singleFarm:FindFirstChild("Decoration")
                         if decorationModel then
+                            print("Tìm thấy Decoration trong folder: " .. singleFarm.Name)
                             for _, desc in ipairs(decorationModel:GetDescendants()) do
                                 if desc:IsA("Model") and desc.Name == "Farm Fence" then
-                                    print("Đang xóa Farm Fence trong folder: ", singleFarm.Name)
+                                    print("Đang xóa Farm Fence trong folder: " .. singleFarm.Name)
                                     desc:Destroy()
                                 end
                             end
+                        else
+                            print("Không tìm thấy Decoration trong folder: " .. singleFarm.Name)
                         end
 
                         -- Xóa Grown_Sign trong mỗi folder con của Farm
                         for _, item in ipairs(singleFarm:GetDescendants()) do
-                            if item:IsA("BasePart") or item:IsA("Model") then
+                            if (item:IsA("BasePart") or item:IsA("Model")) then
                                 if item.Name == "Grown_Sign" then
                                     print("Đang xóa Grown_Sign trong folder: ", singleFarm.Name)
                                     item:Destroy()
