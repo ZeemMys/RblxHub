@@ -225,24 +225,18 @@ FunnyTab:CreateToggle({
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local codeRemote = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("ClaimableCodeService")
 
+-- Danh sách các mã cần nạp
 local listOfCodes = {
-    "LUNARGLOW10",
+    "LUNARGLOW10", -- thay mã hợp lệ vào đây
 }
 
 FunnyTab:CreateButton({
     Name = "Redeem All Codes",
     Callback = function()
         for _, code in ipairs(listOfCodes) do
-            codeRemote:FireServer(code)
-            task.wait(0.3) -- chờ giữa mỗi lần gửi để tránh lag/server anti-spam
+            codeRemote:FireServer(code)  -- Gửi mã đến server
+            task.wait(0.3)  -- Chờ giữa mỗi lần gửi để tránh lag
         end
-
-        Rayfield:Notify({
-            Title = "Đã gửi code",
-            Content = "Đang nạp tất cả mã...",
-            Duration = 5,
-            Image = "0"
-        })
     end
 })
 ------PLAYER---------
