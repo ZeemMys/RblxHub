@@ -51,12 +51,11 @@ local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content =
 MainTab:CreateToggle({
     Name = "Auto Harvest",
     CurrentValue = false,
-    Flag = "AutoHarvestByPlayerIndex",
+    Flag = "AutoHarvestSmart",
     Callback = function(Value)
-        _G.AutoHarvestByPlayerIndex = Value
-
+        _G.AutoHarvestSmart = Value
         if not Value then
-            print("Đã tắt Auto Harvest")
+            print("Tắt Auto Harvest")
             return
         end
 
@@ -66,7 +65,17 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Xác định index của người chơi
+            -- Hàm tween tới part
+            local function teleportTo(part)
+                if not part:IsA("BasePart") then return end
+                local info = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
+                local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
+                local tween = TweenService:Create(hrp, info, goal)
+                tween:Play()
+                tween.Completed:Wait()
+            end
+
+            -- Lấy farm của chính mình dựa theo Players
             local function getMyFarm()
                 local allPlayers = Players:GetPlayers()
                 table.sort(allPlayers, function(a, b)
@@ -87,76 +96,53 @@ MainTab:CreateToggle({
                 return farms[myIndex]
             end
 
-            local function tweenTo(part)
-                if not part:IsA("BasePart") then return end
-                local info = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
-                local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
-                local tween = TweenService:Create(hrp, info, goal)
-                tween:Play()
-                tween.Completed:Wait()
-            end
-
-            local function teleportTo(plant)
-                if not plant:IsA("BasePart") then return end
-                -- Di chuyển đến vị trí của cây
-                hrp.CFrame = plant.CFrame + Vector3.new(0, 2, 0) -- Cộng thêm Y để đứng trên cây
-            end
-
-            while _G.AutoHarvestByPlayerIndex do
+            -- Vòng lặp chính
+            while _G.AutoHarvestSmart do
                 pcall(function()
                     local myFarm = getMyFarm()
-                    if myFarm then
-                        local important = myFarm:FindFirstChild("Important")
-                        local plants = important and important:FindFirstChild("Plants_Physical")
-                        if plants then
-                            for _, plantType in ipairs(plants:GetChildren()) do
-                                for _, model in ipairs(plantType:GetChildren()) do
-                                    if model:IsA("Model") or model:IsA("Part") then
-                                        local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                        
-                                        -- Kiểm tra nếu cây có Fruits (cây hái như sầu riêng, cherry)
-                                        local fruitsFolder = model:FindFirstChild("Fruits")
-                                        if fruitsFolder then
-                                            -- Kiểm tra tất cả các quả trong Fruits
-                                            for _, fruit in ipairs(fruitsFolder:GetChildren()) do
-                                                -- Kiểm tra nếu quả là Part hoặc Model có ProximityPrompt
-                                                if fruit:IsA("Part") then
-                                                    local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
-                                                    if fruitPrompt then
-                                                        teleportTo(fruit) -- Di chuyển tới trái để hái
-                                                        task.wait(0.5)
-                                                        fireproximityprompt(fruitPrompt)
-                                                        task.wait(0.3)
-                                                    end
-                                                elseif fruit:IsA("Model") then
-                                                    -- Nếu quả là một Model, tìm ProximityPrompt bên trong
-                                                    local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                                    if fruitPrompt then
-                                                        teleportTo(fruit) -- Di chuyển tới Model quả để hái
-                                                        task.wait(0.5)
-                                                        fireproximityprompt(fruitPrompt)
-                                                        task.wait(0.3)
-                                                    end
-                                                end
-                                            end
-                                        else
-                                            -- Nếu không có Fruits, đây là cây có thể nhổ (tre, cà rốt)
-                                            teleportTo(model)
-                                            task.wait(0.5)
+                    if not myFarm then return end
+
+                    local important = myFarm:FindFirstChild("Important")
+                    local plantsFolder = important and important:FindFirstChild("Plants_Physical")
+                    if not plantsFolder then return end
+
+                    for _, plantModel in ipairs(plantsFolder:GetChildren()) do
+                        if plantModel:IsA("Model") then
+                            local fruitsFolder = plantModel:FindFirstChild("Fruits")
+
+                            if fruitsFolder then
+                                -- Trường hợp cây ra quả
+                                for _, fruitPart in ipairs(fruitsFolder:GetChildren()) do
+                                    if fruitPart:IsA("BasePart") then
+                                        local prompt = fruitPart:FindFirstChildWhichIsA("ProximityPrompt")
+                                        if prompt then
+                                            teleportTo(fruitPart)
+                                            task.wait(0.4)
                                             fireproximityprompt(prompt)
-                                            task.wait(0.3)
+                                            task.wait(0.2)
                                         end
                                     end
+                                end
+                            else
+                                -- Trường hợp cây nhổ
+                                local prompt = plantModel:FindFirstChildWhichIsA("ProximityPrompt", true)
+                                local partToTween = plantModel:FindFirstChildWhichIsA("BasePart", true)
+                                if prompt and partToTween then
+                                    teleportTo(partToTween)
+                                    task.wait(0.4)
+                                    fireproximityprompt(prompt)
+                                    task.wait(0.2)
                                 end
                             end
                         end
                     end
                 end)
-                task.wait(2)
+
+                task.wait(1.5) -- Chờ trước khi quét lại
             end
         end)
     end,
-})
+})  
 ------Funny------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
