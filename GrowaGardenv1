@@ -113,24 +113,27 @@ MainTab:CreateToggle({
                                 for _, model in ipairs(plantType:GetChildren()) do
                                     if model:IsA("Model") or model:IsA("Part") then
                                         local prompt = model:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                        if prompt then
-                                            local partToTeleport = model:IsA("Part") and model or model:FindFirstChildWhichIsA("BasePart")
-                                            if partToTeleport then
-                                                -- Kiểm tra nếu cây có quả hoặc có thể nhổ lên
-                                                if model:FindFirstChild("Fruits") then
-                                                    -- Đây là cây có quả mọc từ thân (sầu riêng, cherry)
-                                                    teleportTo(partToTeleport)
-                                                    task.wait(0.5)
-                                                    fireproximityprompt(prompt)
-                                                    task.wait(0.3)
-                                                else
-                                                    -- Đây là cây có thể nhổ lên (tre, cà rốt)
-                                                    teleportTo(partToTeleport)
-                                                    task.wait(0.5)
-                                                    fireproximityprompt(prompt)
-                                                    task.wait(0.3)
+                                        
+                                        -- Kiểm tra nếu cây có Fruits (cây hái như sầu riêng, cherry)
+                                        local fruitsFolder = model:FindFirstChild("Fruits")
+                                        if fruitsFolder then
+                                            for _, fruit in ipairs(fruitsFolder:GetChildren()) do
+                                                if fruit:IsA("Part") then
+                                                    local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
+                                                    if fruitPrompt then
+                                                        teleportTo(fruit) -- Di chuyển tới trái để hái
+                                                        task.wait(0.5)
+                                                        fireproximityprompt(fruitPrompt)
+                                                        task.wait(0.3)
+                                                    end
                                                 end
                                             end
+                                        else
+                                            -- Nếu không có Fruits, đây là cây có thể nhổ (tre, cà rốt)
+                                            teleportTo(model)
+                                            task.wait(0.5)
+                                            fireproximityprompt(prompt)
+                                            task.wait(0.3)
                                         end
                                     end
                                 end
