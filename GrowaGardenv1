@@ -51,11 +51,12 @@ local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content =
 MainTab:CreateToggle({
     Name = "Auto Harvest",
     CurrentValue = false,
-    Flag = "AutoHarvestSmart",
+    Flag = "AutoHarvestFixed",
     Callback = function(Value)
-        _G.AutoHarvestSmart = Value
+        _G.AutoHarvestFixed = Value
+
         if not Value then
-            print("Tắt Auto Harvest")
+            print("Đã tắt Auto Harvest")
             return
         end
 
@@ -65,23 +66,18 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Hàm tween tới part
-            local function teleportTo(part)
+            local function tweenTo(part)
                 if not part:IsA("BasePart") then return end
-                local info = TweenInfo.new(0.5, Enum.EasingStyle.Linear)
+                local info = TweenInfo.new(0.4, Enum.EasingStyle.Linear)
                 local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
                 local tween = TweenService:Create(hrp, info, goal)
                 tween:Play()
                 tween.Completed:Wait()
             end
 
-            -- Lấy farm của chính mình dựa theo Players
             local function getMyFarm()
                 local allPlayers = Players:GetPlayers()
-                table.sort(allPlayers, function(a, b)
-                    return a.Name < b.Name
-                end)
-
+                table.sort(allPlayers, function(a, b) return a.Name < b.Name end)
                 local myIndex = table.find(allPlayers, player)
                 if not myIndex then return nil end
 
@@ -89,15 +85,11 @@ MainTab:CreateToggle({
                 if not farmFolder then return nil end
 
                 local farms = farmFolder:GetChildren()
-                table.sort(farms, function(a, b)
-                    return a.Name < b.Name
-                end)
-
+                table.sort(farms, function(a, b) return a.Name < b.Name end)
                 return farms[myIndex]
             end
 
-            -- Vòng lặp chính
-            while _G.AutoHarvestSmart do
+            while _G.AutoHarvestFixed do
                 pcall(function()
                     local myFarm = getMyFarm()
                     if not myFarm then return end
@@ -106,39 +98,37 @@ MainTab:CreateToggle({
                     local plantsFolder = important and important:FindFirstChild("Plants_Physical")
                     if not plantsFolder then return end
 
-                    for _, plantModel in ipairs(plantsFolder:GetChildren()) do
-                        if plantModel:IsA("Model") then
-                            local fruitsFolder = plantModel:FindFirstChild("Fruits")
+                    for _, plant in ipairs(plantsFolder:GetChildren()) do
+                        -- Trường hợp 1: Nhổ (cây gắn trực tiếp ProximityPrompt)
+                        local promptInModel = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
+                        if promptInModel then
+                            local base = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
+                            if base then
+                                tweenTo(base)
+                                task.wait(0.4)
+                                fireproximityprompt(promptInModel)
+                                task.wait(0.3)
+                            end
+                        end
 
-                            if fruitsFolder then
-                                -- Trường hợp cây ra quả
-                                for _, fruitPart in ipairs(fruitsFolder:GetChildren()) do
-                                    if fruitPart:IsA("BasePart") then
-                                        local prompt = fruitPart:FindFirstChildWhichIsA("ProximityPrompt")
-                                        if prompt then
-                                            teleportTo(fruitPart)
-                                            task.wait(0.4)
-                                            fireproximityprompt(prompt)
-                                            task.wait(0.2)
-                                        end
+                        -- Trường hợp 2: Hái (Fruits folder với các Part bên trong)
+                        local fruitsFolder = plant:FindFirstChild("Fruits")
+                        if fruitsFolder then
+                            for _, fruit in ipairs(fruitsFolder:GetChildren()) do
+                                if fruit:IsA("Part") then
+                                    local prompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
+                                    if prompt then
+                                        tweenTo(fruit)
+                                        task.wait(0.4)
+                                        fireproximityprompt(prompt)
+                                        task.wait(0.2)
                                     end
-                                end
-                            else
-                                -- Trường hợp cây nhổ
-                                local prompt = plantModel:FindFirstChildWhichIsA("ProximityPrompt", true)
-                                local partToTween = plantModel:FindFirstChildWhichIsA("BasePart", true)
-                                if prompt and partToTween then
-                                    teleportTo(partToTween)
-                                    task.wait(0.4)
-                                    fireproximityprompt(prompt)
-                                    task.wait(0.2)
                                 end
                             end
                         end
                     end
                 end)
-
-                task.wait(1.5) -- Chờ trước khi quét lại
+                task.wait(2)
             end
         end)
     end,
