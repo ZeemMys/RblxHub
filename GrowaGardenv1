@@ -248,7 +248,7 @@ MainTab:CreateToggle({
 
 local autoOpenSeedGUI = false
 
-MainTab:CreateToggle({
+MainTab:CreateButton({
     Name = "Seed GUI",
     CurrentValue = false,
     Callback = function(Value)
