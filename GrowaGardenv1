@@ -143,34 +143,37 @@ MainTab:CreateToggle({
     Name = "Auto Sell",
     CurrentValue = false,
     Callback = function(Value)
-        _G.AutoTeleportSell = Value
+        _G.AutoInstantSell = Value
 
         if Value then
             task.spawn(function()
                 local player = game.Players.LocalPlayer
-                local hrp = player.Character:WaitForChild("HumanoidRootPart")
+                local character = player.Character or player.CharacterAdded:Wait()
+                local hrp = character:WaitForChild("HumanoidRootPart")
                 local sellRemote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("Sell_Inventory")
-                local sellPoint = workspace:FindFirstChild("Tutorial_Points") and workspace.Tutorial_Points:FindFirstChild("Tutorial_Point_2")
+                local sellPoint = workspace:WaitForChild("Tutorial_Points"):WaitForChild("Tutorial_Point_2")
 
-                if not sellPoint then
-                    warn("❌ Không tìm thấy điểm bán: Tutorial_Point_2")
-                    return
-                end
-
-                while _G.AutoTeleportSell do
+                while _G.AutoInstantSell do
                     pcall(function()
-                        hrp.CFrame = sellPoint.CFrame + Vector3.new(0, 3, 0) -- Teleport trực tiếp
-                        task.wait(0.5)
+                        -- Teleport trực tiếp
+                        hrp.CFrame = sellPoint.CFrame + Vector3.new(0, 3, 0)
+
+                        task.wait(0.4)
+
+                        -- Gửi lệnh bán
                         if sellRemote then
                             sellRemote:FireServer()
-                            print("✅ Đã bán hàng (Teleport nhanh).")
+                            print("✅ Đã bán hàng (bằng teleport).")
+                        else
+                            warn("❌ Không tìm thấy remote Sell_Inventory")
                         end
                     end)
-                    task.wait(10) -- Lặp lại sau mỗi 10 giây
+
+                    task.wait(10) -- Thời gian giữa mỗi lần bán
                 end
             end)
         else
-            print("⛔ Đã tắt Auto Sell (Teleport)")
+            print("⛔ Auto Sell đã bị tắt.")
         end
     end
 })
