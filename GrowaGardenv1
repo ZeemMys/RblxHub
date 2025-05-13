@@ -43,7 +43,7 @@ Rayfield:Notify({
 
 local MainTab = Window:CreateTab("Main", 4483362458) -- Title, Image
 local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
-local FunnyTab = Window:CreateTab("Funny", 4483362458)
+local FunnyTab = Window:CreateTab("Fun And Code", 4483362458)
 
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
@@ -103,7 +103,7 @@ MainTab:CreateToggle({
         end
     end,
 })
-------CREDIT------
+------Funny------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
    Callback = function()
@@ -219,6 +219,30 @@ FunnyTab:CreateToggle({
                 warn("Không tìm thấy folder Farm trong workspace hoặc không phải là Folder")
             end
         end
+    end
+})
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local codeRemote = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("ClaimableCodeService")
+
+local listOfCodes = {
+    "LUNARGLOW10",
+}
+
+FunnyTab:CreateButton({
+    Name = "Redeem All Codes",
+    Callback = function()
+        for _, code in ipairs(listOfCodes) do
+            codeRemote:FireServer(code)
+            task.wait(0.3) -- chờ giữa mỗi lần gửi để tránh lag/server anti-spam
+        end
+
+        Rayfield:Notify({
+            Title = "Đã gửi code",
+            Content = "Đang nạp tất cả mã...",
+            Duration = 5,
+            Image = "number"
+        })
     end
 })
 ------PLAYER---------
