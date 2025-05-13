@@ -138,6 +138,30 @@ MainTab:CreateToggle({
         end)
     end,
 })
+
+MainTab:CreateToggle({
+    Name = "Sell Inventory",
+    CurrentValue = false,
+    Callback = function(Value)
+        _G.AutoSellInventory = Value
+
+        if Value then
+            task.spawn(function()
+                local remote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("Sell_Inventory")
+
+                while _G.AutoSellInventory do
+                    if remote then
+                        remote:FireServer()
+                        print("📦 Đã tự động bán hàng trong kho!")
+                    end
+                    task.wait(5) -- Thời gian giữa mỗi lần bán, bạn có thể điều chỉnh
+                end
+            end)
+        else
+            print("⛔ Đã tắt Auto Sell Inventory")
+        end
+    end
+})
 ---------Funny------------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
