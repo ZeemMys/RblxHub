@@ -123,7 +123,7 @@ MainTab:CreateToggle({
                                     if fruitPrompt then
                                         teleTo(fruit)  -- Teleport lên trái cây để hái
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(0.4)  -- Đợi một chút để thực hiện hành động
+                                        task.wait(1)  -- Đợi một chút để thực hiện hành động
                                     end
                                 end
                             end
