@@ -245,6 +245,20 @@ MainTab:CreateToggle({
         end
     end
 })
+
+MainTab:CreateButton({
+    Name = "Ấn để xem bán seed gì",
+    Callback = function()
+        local prompt = workspace:FindFirstChild("NPCS") and workspace.NPCS:FindFirstChild("Sam") and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart"):FindFirstChildOfClass("ProximityPrompt")
+
+        if prompt then
+            fireproximityprompt(prompt)
+            print("✅ Đã kích hoạt bảng bán seed từ NPC Sam.")
+        else
+            warn("❌ Không tìm thấy ProximityPrompt của NPC Sam.")
+        end
+    end
+})
 ---------Funny------------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
