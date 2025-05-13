@@ -115,7 +115,7 @@ local Button = FunnyTab:CreateButton({
 })
 
 FunnyTab:CreateToggle({
-    Name = "Xoá Part",
+    Name = "Xoá Part (CHỜ BỐ MÀY XÍU)",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
