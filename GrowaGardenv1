@@ -246,57 +246,51 @@ MainTab:CreateToggle({
     end
 })
 
-local autoPromptDistance = false
+local autoOpenSeedGUI = false
 
 MainTab:CreateToggle({
     Name = "Seed GUI",
     CurrentValue = false,
     Callback = function(Value)
-        autoPromptDistance = Value
+        autoOpenSeedGUI = Value
 
         if Value then
             task.spawn(function()
-                while autoPromptDistance do
-                    local sam = workspace:FindFirstChild("NPCS")
-                        and workspace.NPCS:FindFirstChild("Sam")
-                    local hrp = sam and sam:FindFirstChild("HumanoidRootPart")
+                local player = game.Players.LocalPlayer
+                local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 
-                    if hrp then
-                        -- Sao chép ProximityPrompt gốc
-                        local originalPrompt = hrp:FindFirstChildOfClass("ProximityPrompt")
-                        if originalPrompt then
-                            local tempPrompt = originalPrompt:Clone()
-                            tempPrompt.MaxActivationDistance = 200
-                            tempPrompt.Name = "TempPrompt"
-                            tempPrompt.Parent = hrp
+                while autoOpenSeedGUI do
+                    pcall(function()
+                        hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+                        local tpPoint = workspace:FindFirstChild("Tutorial_Points") and workspace.Tutorial_Points:FindFirstChild("Tutorial_Point_1")
+                        local prompt = workspace:FindFirstChild("NPCS")
+                            and workspace.NPCS:FindFirstChild("Sam")
+                            and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart")
+                            and workspace.NPCS.Sam.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
 
-                            -- Gọi prompt tạm thời
-                            task.wait(0.2)
-                            fireproximityprompt(tempPrompt)
-                            print("✅ Gọi GUI từ xa với Prompt tạm")
+                        if hrp and tpPoint and prompt then
+                            -- Teleport tới gần NPC
+                            hrp.CFrame = tpPoint.CFrame + Vector3.new(0, 3, 0)
+                            print("📍 Đã dịch chuyển tới Tutorial_Point_1")
 
-                            task.wait(1)
+                            task.wait(0.5)
 
-                            -- Xóa prompt tạm
-                            if tempPrompt and tempPrompt.Parent then
-                                tempPrompt:Destroy()
-                                print("🧹 Đã xóa Prompt tạm")
-                            end
+                            -- Ấn prompt để mở GUI
+                            fireproximityprompt(prompt)
+                            print("✅ Đã mở bảng Seed GUI")
                         else
-                            warn("❌ Không tìm thấy ProximityPrompt gốc.")
+                            warn("⚠️ Không tìm thấy vị trí hoặc prompt.")
                         end
-                    else
-                        warn("❌ Không tìm thấy Sam hoặc HRP.")
-                    end
+                    end)
 
-                    task.wait(2) -- chờ vòng tiếp theo
+                    task.wait(5) -- Delay giữa các lần gọi
                 end
             end)
         else
-            print("⛔ Đã tắt Auto GUI từ xa.")
+            print("⛔ Đã tắt auto mở Seed GUI.")
         end
     end
-}) 
+})
 ---------Funny------------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
