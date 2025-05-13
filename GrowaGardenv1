@@ -65,7 +65,7 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Hàm teleport trực tiếp
+            -- Hàm teleport trực tiếp đến quả hoặc cây
             local function teleportTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 -- Teleport trực tiếp đến vị trí của part
@@ -106,7 +106,7 @@ MainTab:CreateToggle({
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
                             if mainPart then
-                                teleportTo(mainPart)  -- Teleport đến cây
+                                teleportTo(mainPart)  -- Teleport đến cây (carrot, bamboo)
                                 fireproximityprompt(prompt)
                                 task.wait(0.4)
                             end
@@ -125,7 +125,7 @@ MainTab:CreateToggle({
                                     if fruitPrompt then
                                         teleportTo(fruit)  -- Teleport đến quả
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(0.8)
+                                        task.wait(1)
                                     end
                                 end
                             end
