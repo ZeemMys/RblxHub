@@ -65,12 +65,11 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            local function tweenTo(part)
+            -- Thay đổi tweenTo thành teleTo
+            local function teleTo(part)
                 if not part or not part:IsA("BasePart") then return end
-                local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
-                local tween = TweenService:Create(hrp, TweenInfo.new(0.8), goal)
-                tween:Play()
-                tween.Completed:Wait()
+                local goalPosition = part.Position + Vector3.new(0, 2.5, 0)  -- Đi lên trên phần để hái
+                hrp.CFrame = CFrame.new(goalPosition)  -- Teleport đến vị trí của trái cây/cây
                 task.wait(0.5)
             end
 
@@ -107,9 +106,9 @@ MainTab:CreateToggle({
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
                             if mainPart then
-                                tweenTo(mainPart)
+                                teleTo(mainPart)  -- Teleport đến cây cần hái
                                 fireproximityprompt(prompt)
-                                task.wait(0.4)
+                                task.wait(0.4)  -- Đợi một chút để thực hiện hành động
                             end
                         end
 
@@ -123,9 +122,9 @@ MainTab:CreateToggle({
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
                                     local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if fruitPrompt then
-                                        tweenTo(fruit)
+                                        teleTo(fruit)  -- Teleport lên trái cây để hái
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(0.4)
+                                        task.wait(0.4)  -- Đợi một chút để thực hiện hành động
                                     end
                                 end
                             end
