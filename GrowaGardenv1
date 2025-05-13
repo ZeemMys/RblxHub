@@ -249,7 +249,7 @@ MainTab:CreateToggle({
 local autoPromptDistance = false
 
 MainTab:CreateToggle({
-    Name = "Hiện bảng bán seed",
+    Name = "Seed GUI",
     CurrentValue = false,
     Callback = function(Value)
         autoPromptDistance = Value
@@ -257,34 +257,46 @@ MainTab:CreateToggle({
         if Value then
             task.spawn(function()
                 while autoPromptDistance do
-                    local prompt = workspace:FindFirstChild("NPCS")
+                    local sam = workspace:FindFirstChild("NPCS")
                         and workspace.NPCS:FindFirstChild("Sam")
-                        and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart")
-                        and workspace.NPCS.Sam.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
+                    local hrp = sam and sam:FindFirstChild("HumanoidRootPart")
 
-                    if prompt then
-                        -- Bước 1: Set khoảng cách xa
-                        prompt.MaxActivationDistance = 200
-                        print("🔧 Set MaxActivationDistance = 200")
-                        task.wait(1)
+                    if hrp then
+                        -- Sao chép ProximityPrompt gốc
+                        local originalPrompt = hrp:FindFirstChildOfClass("ProximityPrompt")
+                        if originalPrompt then
+                            local tempPrompt = originalPrompt:Clone()
+                            tempPrompt.MaxActivationDistance = 200
+                            tempPrompt.Name = "TempPrompt"
+                            tempPrompt.Parent = hrp
 
-                        -- Bước 2: Kiểm tra lại nếu còn bật -> Set lại về mặc định
-                        if autoPromptDistance and prompt then
-                            prompt.MaxActivationDistance = 10
-                            print("🔧 Set MaxActivationDistance = 10")
+                            -- Gọi prompt tạm thời
+                            task.wait(0.2)
+                            fireproximityprompt(tempPrompt)
+                            print("✅ Gọi GUI từ xa với Prompt tạm")
+
+                            task.wait(1)
+
+                            -- Xóa prompt tạm
+                            if tempPrompt and tempPrompt.Parent then
+                                tempPrompt:Destroy()
+                                print("🧹 Đã xóa Prompt tạm")
+                            end
+                        else
+                            warn("❌ Không tìm thấy ProximityPrompt gốc.")
                         end
                     else
-                        warn("❌ Không tìm thấy ProximityPrompt của Sam.")
+                        warn("❌ Không tìm thấy Sam hoặc HRP.")
                     end
 
-                    task.wait(1)
+                    task.wait(2) -- chờ vòng tiếp theo
                 end
             end)
         else
-            print("⛔ Đã tắt auto chỉnh khoảng cách ProximityPrompt.")
+            print("⛔ Đã tắt Auto GUI từ xa.")
         end
     end
-})
+}) 
 ---------Funny------------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
