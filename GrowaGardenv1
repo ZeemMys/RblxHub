@@ -149,43 +149,38 @@ MainTab:CreateToggle({
             task.spawn(function()
                 local TweenService = game:GetService("TweenService")
                 local player = game.Players.LocalPlayer
-                local char = player.Character or player.CharacterAdded:Wait()
-                local hrp = char:WaitForChild("HumanoidRootPart")
+                local hrp = player.Character:WaitForChild("HumanoidRootPart")
                 local sellRemote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("Sell_Inventory")
+                local sellPoint = workspace:FindFirstChild("Tutorial_Points") and workspace.Tutorial_Points:FindFirstChild("Tutorial_Point_2")
 
-                -- Tìm NPC bán hàng
-                local function findSellNPC()
-                    for _, obj in ipairs(workspace:GetDescendants()) do
-                        if obj:IsA("BasePart") and string.lower(obj.Name):find("sell") then
-                            return obj
-                        end
-                    end
-                    return nil
+                if not sellPoint then
+                    warn("❌ Không tìm thấy điểm bán: Tutorial_Point_2")
+                    return
                 end
 
-                local function tweenTo(part)
-                    if not part then return end
-                    local goal = {CFrame = part.CFrame + Vector3.new(0, 3, 0)}
-                    local tween = TweenService:Create(hrp, TweenInfo.new(0.7), goal)
+                local function tweenToSell()
+                    local goal = {CFrame = sellPoint.CFrame + Vector3.new(0, 3, 0)}
+                    local tween = TweenService:Create(hrp, TweenInfo.new(0.8), goal)
                     tween:Play()
                     tween.Completed:Wait()
                 end
 
                 while _G.AutoTeleportSell do
-                    local sellNPC = findSellNPC()
-                    if sellNPC and sellRemote then
-                        tweenTo(sellNPC)
+                    pcall(function()
+                        tweenToSell()
                         task.wait(0.5)
-                        sellRemote:FireServer()
-                        print("✅ Đã tự động bán hàng.")
-                    else
-                        warn("❌ Không tìm thấy NPC bán hàng hoặc remote Sell_Inventory")
-                    end
-                    task.wait(5) -- Chờ 10 giây mỗi lần bán
+                        if sellRemote then
+                            sellRemote:FireServer()
+                            print("✅ Đã tự động bán hàng.")
+                        else
+                            warn("❌ Không tìm thấy remote Sell_Inventory")
+                        end
+                    end)
+                    task.wait(10) -- Thời gian giữa mỗi lần bán
                 end
             end)
         else
-            print("⛔ Đã tắt Auto Teleport + Sell")
+            print("⛔ Auto Sell đã bị tắt.")
         end
     end
 })
