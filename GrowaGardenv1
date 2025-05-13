@@ -177,6 +177,58 @@ MainTab:CreateToggle({
         end
     end
 })
+
+local seedTypes = {
+    "Common",
+    "Uncommon",
+    "Rare",
+    "Legendary",
+    "Mythical",
+    "Divine"
+}
+
+local selectedSeedType = "Common"
+local autoBuyEnabled = false
+
+MainTab:CreateDropdown({
+    Name = "Chọn loại hạt giống cần mua",
+    Options = seedTypes,
+    CurrentOption = selectedSeedType,
+    Callback = function(Value)
+        selectedSeedType = Value
+        print("✅ Đã chọn loại hạt giống:", Value)
+    end,
+})
+
+MainTab:CreateToggle({
+    Name = "Buy Seed |Chọn đi em|",
+    CurrentValue = false,
+    Callback = function(Value)
+        autoBuyEnabled = Value
+
+        if Value then
+            task.spawn(function()
+                local buyRemote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("BuySeedStock")
+                if not buyRemote then
+                    warn("❌ Không tìm thấy remote BuySeedStock")
+                    return
+                end
+
+                while autoBuyEnabled do
+                    pcall(function()
+                        if selectedSeedType then
+                            print("🛒 Mua hạt:", selectedSeedType)
+                            buyRemote:FireServer(selectedSeedType)
+                        end
+                    end)
+                    task.wait(5) -- Delay giữa các lần mua, bạn có thể chỉnh
+                end
+            end)
+        else
+            print("⛔ Auto Buy Seed đã tắt")
+        end
+    end
+})
 ---------Funny------------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
