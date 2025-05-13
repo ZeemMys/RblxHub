@@ -127,6 +127,7 @@ FunnyTab:CreateToggle({
             local petStands = nil
             local questModel = nil
 
+            -- Tìm các stand mô hình
             for _, obj in ipairs(workspace:GetDescendants()) do
                 if obj:IsA("Model") then
                     if obj.Name == "Seed Stands" then
@@ -143,6 +144,7 @@ FunnyTab:CreateToggle({
                 end
             end
 
+            -- Các tên Part cần xóa
             local namesToDelete = {
                 "Part",
                 "Crooked Plank",
@@ -153,6 +155,7 @@ FunnyTab:CreateToggle({
                 "Quest Part"
             }
 
+            -- Hàm xóa các part trong mô hình
             local function deletePartsFromModel(model)
                 for _, obj in ipairs(model:GetDescendants()) do
                     if obj:IsA("BasePart") and table.find(namesToDelete, obj.Name) then
@@ -163,6 +166,7 @@ FunnyTab:CreateToggle({
                 end
             end
 
+            -- Xóa các phần trong từng Stand
             if seedStands then deletePartsFromModel(seedStands) end
             if sellStands then deletePartsFromModel(sellStands) end
             if gearStands then deletePartsFromModel(gearStands) end
@@ -174,21 +178,21 @@ FunnyTab:CreateToggle({
             if farmFolder and farmFolder:IsA("Folder") then
                 for _, singleFarm in ipairs(farmFolder:GetChildren()) do
                     if singleFarm:IsA("Folder") then
-                        -- Tìm mô hình Decoration trong từng folder Farm
+                        -- Tìm mô hình Decoration trong từng folder Farm và xóa Farm Fence
                         local decorationModel = singleFarm:FindFirstChild("Decoration")
-                        if decorationModel and decorationModel:IsA("Model") then
-                            for _, item in ipairs(decorationModel:GetChildren()) do
-                                if item:IsA("Model") and item.Name == "Farm Fence" then
-                                    print("Đang xóa Farm Fence")
-                                    item:Destroy()
+                        if decorationModel then
+                            for _, desc in ipairs(decorationModel:GetDescendants()) do
+                                if desc:IsA("Model") and desc.Name == "Farm Fence" then
+                                    print("Đang xóa Farm Fence trong: ", singleFarm.Name)
+                                    desc:Destroy()
                                 end
                             end
                         end
 
-                        -- Xóa Grow Sign nếu có trong folder Farm
+                        -- Xóa Grow Sign trong mỗi folder Farm
                         for _, item in ipairs(singleFarm:GetDescendants()) do
                             if (item:IsA("BasePart") or item:IsA("Model")) and item.Name == "Grow Sign" then
-                                print("Đang xóa Grow Sign")
+                                print("Đang xóa Grow Sign trong: ", singleFarm.Name)
                                 item:Destroy()
                             end
                         end
@@ -199,7 +203,7 @@ FunnyTab:CreateToggle({
             end
         end
     end
-})
+})          
 ------PLAYER---------
 -- WalkSpeed Toggle + Slider
 local WalkEnabled = false
