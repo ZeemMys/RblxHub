@@ -60,12 +60,11 @@ MainTab:CreateToggle({
         end
 
         task.spawn(function()
-            local TweenService = game:GetService("TweenService")
             local Players = game:GetService("Players")
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Thay đổi tweenTo thành teleTo
+            -- Hàm teleport trực tiếp tới vị trí của cây
             local function teleTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 local goalPosition = part.Position + Vector3.new(0, 2.5, 0)  -- Đi lên trên phần để hái
