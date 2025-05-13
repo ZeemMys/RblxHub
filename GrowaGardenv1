@@ -64,7 +64,7 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Hàm teleport trực tiếp tới vị trí của cây
+            -- Hàm teleport trực tiếp đến vị trí của cây
             local function teleTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 local goalPosition = part.Position + Vector3.new(0, 2.5, 0)  -- Đi lên trên phần để hái
