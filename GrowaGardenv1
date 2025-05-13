@@ -67,9 +67,10 @@ MainTab:CreateToggle({
             local function tweenTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
-                local tween = TweenService:Create(hrp, TweenInfo.new(0.5), goal)
+                local tween = TweenService:Create(hrp, TweenInfo.new(0.8), goal)
                 tween:Play()
                 tween.Completed:Wait()
+                task.wait(0.5) -- Thời gian chờ sau khi bay đến để ổn định
             end
 
             local function getMyFarm()
@@ -89,6 +90,8 @@ MainTab:CreateToggle({
 
             while _G.AutoHarvestUniversal do
                 pcall(function()
+                    if not _G.AutoHarvestUniversal then return end
+
                     local myFarm = getMyFarm()
                     if not myFarm then return end
 
@@ -97,36 +100,38 @@ MainTab:CreateToggle({
                     if not plants then return end
 
                     for _, plant in ipairs(plants:GetChildren()) do
-                        -- Trường hợp cây nhổ (Prompt nằm trong model hoặc part chính)
+                        if not _G.AutoHarvestUniversal then return end
+
+                        -- Cây nhổ
                         local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
                             if mainPart then
                                 tweenTo(mainPart)
-                                task.wait(0.5)
                                 fireproximityprompt(prompt)
-                                task.wait(0.3)
+                                task.wait(0.6)
                             end
                         end
 
-                        -- Trường hợp cây hái trái (có Fruits hoặc Grow)
+                        -- Cây hái trái
                         local fruitFolder = plant:FindFirstChild("Fruits") or plant:FindFirstChild("Grow")
                         if fruitFolder then
                             for _, fruit in ipairs(fruitFolder:GetChildren()) do
+                                if not _G.AutoHarvestUniversal then return end
+
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
                                     local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if fruitPrompt then
                                         tweenTo(fruit)
-                                        task.wait(0.5)
                                         fireproximityprompt(fruitPrompt)
-                                        task.wait(0.3)
+                                        task.wait(0.5)
                                     end
                                 end
                             end
                         end
                     end
                 end)
-                task.wait(2)
+                task.wait(1.5) -- Delay giữa mỗi lần quét
             end
         end)
     end,
