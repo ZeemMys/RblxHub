@@ -249,30 +249,17 @@ MainTab:CreateToggle({
 MainTab:CreateButton({
     Name = "Hiện bảng bán Seed",
     Callback = function()
-        local Players = game:GetService("Players")
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local player = Players.LocalPlayer
+        local prompt = workspace:FindFirstChild("NPCS")
+            and workspace.NPCS:FindFirstChild("Sam")
+            and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart")
+            and workspace.NPCS.Sam.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
 
-        local guiModule = ReplicatedStorage:FindFirstChild("Modules")
-        if not guiModule then warn("Không tìm thấy folder Modules") return end
-
-        local controller = guiModule:FindFirstChild("SeedShopController")
-        if not controller then warn("Không tìm thấy SeedShopController") return end
-
-        local itemFrame = controller:FindFirstChild("ItemFrame")
-        if not itemFrame then warn("Không tìm thấy ItemFrame") return end
-
-        local gui = itemFrame:FindFirstChild("Main_Frame")
-        if not gui then warn("Không tìm thấy Main_Frame") return end
-
-        -- Clone vào PlayerGui nếu chưa có
-        local playerGui = player:WaitForChild("PlayerGui")
-        if not playerGui:FindFirstChild("Main_Frame") then
-            local clonedGui = gui:Clone()
-            clonedGui.Parent = playerGui
-            print("✅ Đã clone GUI vào PlayerGui")
+        if prompt then
+            prompt.MaxActivationDistance = 200  -- 👈 Tăng khoảng cách lên 200 studs
+            fireproximityprompt(prompt)
+            print("✅ Đã kích hoạt bảng bán seed từ NPC Sam.")
         else
-            print("⚠️ GUI đã được clone trước đó")
+            warn("❌ Không tìm thấy ProximityPrompt của NPC Sam.")
         end
     end
 })
