@@ -246,46 +246,35 @@ MainTab:CreateToggle({
     end
 })
 
-local autoOpenSeedGUI = false
+MainTab:CreateButton({
+    Name = "Mở Seed GUI",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 
-MainTab:CreateToggle({
-    Name = "Seed GUI",
-    CurrentValue = false,
-    Callback = function(Value)
-        autoOpenSeedGUI = Value
+        -- Chỉ thực hiện hành động một lần khi nút được bấm
+        pcall(function()
+            hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            local tpPoint = workspace:FindFirstChild("Tutorial_Points") and workspace.Tutorial_Points:FindFirstChild("Tutorial_Point_1")
+            local prompt = workspace:FindFirstChild("NPCS")
+                and workspace.NPCS:FindFirstChild("Sam")
+                and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart")
+                and workspace.NPCS.Sam.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
 
-        if Value then
-            task.spawn(function()
-                local player = game.Players.LocalPlayer
-                local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+            if hrp and tpPoint and prompt then
+                -- Teleport tới gần NPC
+                hrp.CFrame = tpPoint.CFrame + Vector3.new(0, 3, 0)
+                print("📍 Đã dịch chuyển tới Tutorial_Point_1")
 
-                -- Chỉ thực hiện hành động một lần khi toggle được bật
-                pcall(function()
-                    hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-                    local tpPoint = workspace:FindFirstChild("Tutorial_Points") and workspace.Tutorial_Points:FindFirstChild("Tutorial_Point_1")
-                    local prompt = workspace:FindFirstChild("NPCS")
-                        and workspace.NPCS:FindFirstChild("Sam")
-                        and workspace.NPCS.Sam:FindFirstChild("HumanoidRootPart")
-                        and workspace.NPCS.Sam.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
+                task.wait(0.5)
 
-                    if hrp and tpPoint and prompt then
-                        -- Teleport tới gần NPC
-                        hrp.CFrame = tpPoint.CFrame + Vector3.new(0, 3, 0)
-                        print("📍 Đã dịch chuyển tới Tutorial_Point_1")
-
-                        task.wait(0.5)
-
-                        -- Ấn prompt để mở GUI
-                        fireproximityprompt(prompt)
-                        print("✅ Đã mở bảng Seed GUI")
-                    else
-                        warn("⚠️ Không tìm thấy vị trí hoặc prompt.")
-                    end
-                end)
-            end)
-        else
-            print("⛔ Đã tắt auto mở Seed GUI.")
-        end
+                -- Ấn prompt để mở GUI
+                fireproximityprompt(prompt)
+                print("✅ Đã mở bảng Seed GUI")
+            else
+                warn("⚠️ Không tìm thấy vị trí hoặc prompt.")
+            end
+        end)
     end
 })
 ---------Funny------------
