@@ -262,7 +262,8 @@ local codeRemote = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("Cl
 
 -- Danh sách các mã cần nạp
 local listOfCodes = {
-    "LUNARGLOW10", -- thay mã hợp lệ vào đây
+    "lunarglowup",
+    "glowpetup",-- thay mã hợp lệ vào đây
 }
 
 FunnyTab:CreateButton({
