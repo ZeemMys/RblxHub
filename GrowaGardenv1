@@ -129,7 +129,7 @@ MainTab:CreateToggle({
                             if mainPart then
                                 tweenTo(mainPart)
                                 fireproximityprompt(prompt)
-                                task.wait(0.4)
+                                task.wait(0.6)
                             end
                         end
                     end
