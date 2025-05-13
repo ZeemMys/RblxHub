@@ -241,7 +241,7 @@ FunnyTab:CreateButton({
             Title = "Đã gửi code",
             Content = "Đang nạp tất cả mã...",
             Duration = 5,
-            Image = "number"
+            Image = "0"
         })
     end
 })
