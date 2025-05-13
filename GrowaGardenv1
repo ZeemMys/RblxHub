@@ -115,7 +115,7 @@ local Button = FunnyTab:CreateButton({
 })
 
 FunnyTab:CreateToggle({
-    Name = "Xoá Part",
+    Name = "Xoá Part |Chờ ít giây ok?|",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
@@ -178,13 +178,14 @@ FunnyTab:CreateToggle({
             if farmFolder and farmFolder:IsA("Folder") then
                 for _, singleFarm in ipairs(farmFolder:GetChildren()) do
                     if singleFarm:IsA("Folder") then
+                        print("Đang kiểm tra folder: " .. singleFarm.Name)
+
                         -- Tìm mô hình Decoration trong từng folder Farm và xóa Farm Fence nếu có
                         local decorationModel = singleFarm:FindFirstChild("Decoration")
                         if decorationModel then
                             for _, desc in ipairs(decorationModel:GetDescendants()) do
-                                -- Kiểm tra nếu có Farm Fence trong model Decoration, xóa nó
                                 if desc:IsA("Model") and desc.Name == "Farm Fence" then
-                                    print("Đang xóa Farm Fence trong: ", singleFarm.Name)
+                                    print("Đang xóa Farm Fence trong folder: ", singleFarm.Name)
                                     desc:Destroy()
                                 end
                             end
@@ -192,9 +193,11 @@ FunnyTab:CreateToggle({
 
                         -- Xóa Grown_Sign trong mỗi folder con của Farm
                         for _, item in ipairs(singleFarm:GetDescendants()) do
-                            if (item:IsA("BasePart") or item:IsA("Model")) and item.Name == "Grown_Sign" then
-                                print("Đang xóa Grown_Sign trong: ", singleFarm.Name)
-                                item:Destroy()
+                            if item:IsA("BasePart") or item:IsA("Model") then
+                                if item.Name == "Grown_Sign" then
+                                    print("Đang xóa Grown_Sign trong folder: ", singleFarm.Name)
+                                    item:Destroy()
+                                end
                             end
                         end
                     end
