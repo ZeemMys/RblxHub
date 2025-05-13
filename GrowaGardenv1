@@ -65,12 +65,13 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- Hàm teleport trực tiếp đến cây/ quả
-            local function teleportTo(part)
+            local function tweenTo(part)
                 if not part or not part:IsA("BasePart") then return end
-                -- Teleport trực tiếp đến vị trí của part
-                hrp.CFrame = part.CFrame + Vector3.new(0, 2, 0)
-                task.wait(0.5)  -- Thời gian chờ sau khi teleport
+                local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
+                local tween = TweenService:Create(hrp, TweenInfo.new(0.8), goal)
+                tween:Play()
+                tween.Completed:Wait()
+                task.wait(0.5)
             end
 
             local function getMyFarm()
@@ -101,34 +102,34 @@ MainTab:CreateToggle({
                     for _, plant in ipairs(plants:GetChildren()) do
                         if not _G.AutoHarvestUniversal then return end
 
-                        -- Cây nhổ (như carrot, bamboo)
-                        local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
-                        if prompt then
-                            local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
-                            if mainPart then
-                                teleportTo(mainPart)  -- Teleport đến cây nhổ
-                                fireproximityprompt(prompt)
-                                task.wait(0.4)
-                            end
-                        end
-
-                        -- Cây có quả (cherry, raspberry)
+                        -- Hái cây (như cherry, raspberry)
                         local fruitFolder = plant:FindFirstChild("Fruits")
                         if fruitFolder then
-                            -- Lấy các phần tử con trong Fruits (có thể có folder "Grow")
                             local growFolder = fruitFolder:FindFirstChild("Grow") or fruitFolder
                             for _, fruit in ipairs(growFolder:GetChildren()) do
                                 if not _G.AutoHarvestUniversal then return end
 
+                                -- Teleport to the plant's main part (Folder name is the tree name)
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
-                                    -- Tìm ProximityPrompt trong trái cây
                                     local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if fruitPrompt then
-                                        teleportTo(fruit)  -- Teleport đến quả
+                                        -- Teleport to the plant's base
+                                        tweenTo(plant)  -- Here we teleport directly to the plant instead of just the fruit
                                         fireproximityprompt(fruitPrompt)
                                         task.wait(0.4)
                                     end
                                 end
+                            end
+                        end
+
+                        -- Nhổ cây (như carrot, tre)
+                        local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
+                        if prompt then
+                            local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
+                            if mainPart then
+                                tweenTo(mainPart)
+                                fireproximityprompt(prompt)
+                                task.wait(0.4)
                             end
                         end
                     end
