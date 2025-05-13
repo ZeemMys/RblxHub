@@ -189,6 +189,7 @@ local seedTypes = {
 
 local selectedSeedType = "Common"
 local autoBuyEnabled = false
+local autoBuyThread = nil  -- Thêm biến để theo dõi thread của auto-buy
 
 MainTab:CreateDropdown({
     Name = "Chọn loại hạt giống cần mua",
@@ -206,14 +207,22 @@ MainTab:CreateToggle({
     Callback = function(Value)
         autoBuyEnabled = Value
 
-        if Value then
-            task.spawn(function()
-                local buyRemote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("BuySeedStock")
-                if not buyRemote then
-                    warn("❌ Không tìm thấy remote BuySeedStock")
-                    return
-                end
+        -- Nếu bật AutoBuy, tạo thread mới để mua hạt giống
+        if autoBuyEnabled then
+            if autoBuyThread then
+                -- Nếu đã có thread auto-buy đang chạy, không tạo lại
+                print("⚠️ AutoBuy đã được bật, không tạo thread mới.")
+                return
+            end
 
+            local buyRemote = game:GetService("ReplicatedStorage").GameEvents:FindFirstChild("BuySeedStock")
+            if not buyRemote then
+                warn("❌ Không tìm thấy remote BuySeedStock")
+                return
+            end
+
+            -- Tạo thread auto-buy khi bật toggle
+            autoBuyThread = task.spawn(function()
                 while autoBuyEnabled do
                     pcall(function()
                         if selectedSeedType then
@@ -221,11 +230,18 @@ MainTab:CreateToggle({
                             buyRemote:FireServer(selectedSeedType)
                         end
                     end)
-                    task.wait(5) -- Delay giữa các lần mua, bạn có thể chỉnh
+                    task.wait(5)  -- Delay giữa các lần mua
                 end
             end)
+            print("✅ Auto Buy Seed đã được bật.")
         else
-            print("⛔ Auto Buy Seed đã tắt")
+            -- Nếu tắt AutoBuy, dừng thread đang chạy
+            if autoBuyThread then
+                -- Hủy bỏ thread mua tự động
+                autoBuyEnabled = false  -- Tắt tính năng
+                autoBuyThread = nil  -- Xóa thread
+                print("⛔ Auto Buy Seed đã tắt.")
+            end
         end
     end
 })
