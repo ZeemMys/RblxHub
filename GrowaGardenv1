@@ -115,7 +115,7 @@ local Button = FunnyTab:CreateButton({
 })
 
 FunnyTab:CreateToggle({
-    Name = "Xoá Part |CHỜ ÍT GIÂY OK?|",
+    Name = "Xoá Part",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
@@ -184,24 +184,34 @@ FunnyTab:CreateToggle({
                         local decorationModel = singleFarm:FindFirstChild("Decoration")
                         if decorationModel then
                             print("Tìm thấy Decoration trong folder: " .. singleFarm.Name)
+                            local foundFarmFence = false
                             for _, desc in ipairs(decorationModel:GetDescendants()) do
                                 if desc:IsA("Model") and desc.Name == "Farm Fence" then
                                     print("Đang xóa Farm Fence trong folder: " .. singleFarm.Name)
                                     desc:Destroy()
+                                    foundFarmFence = true
                                 end
+                            end
+                            if not foundFarmFence then
+                                print("Không tìm thấy Farm Fence trong Decoration của folder: " .. singleFarm.Name)
                             end
                         else
                             print("Không tìm thấy Decoration trong folder: " .. singleFarm.Name)
                         end
 
                         -- Xóa Grown_Sign trong mỗi folder con của Farm
+                        local foundGrownSign = false
                         for _, item in ipairs(singleFarm:GetDescendants()) do
                             if (item:IsA("BasePart") or item:IsA("Model")) then
                                 if item.Name == "Grown_Sign" then
                                     print("Đang xóa Grown_Sign trong folder: ", singleFarm.Name)
                                     item:Destroy()
+                                    foundGrownSign = true
                                 end
                             end
+                        end
+                        if not foundGrownSign then
+                            print("Không tìm thấy Grown_Sign trong folder: " .. singleFarm.Name)
                         end
                     end
                 end
