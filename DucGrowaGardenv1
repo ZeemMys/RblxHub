@@ -328,8 +328,11 @@ MainTab:CreateButton({
     end
 })
 
-MainTab:CreateButton({
-    Name = "Mở Gear Shop",  -- Tên button trong EventTab
+
+
+-- Tạo Button trong MainTab cho "Egg GUI"
+MainTab:CreatMainTab:CreateButton({
+    Name = "Gear GUI",  -- Tên button trong EventTab
     Callback = function()
         local player = game.Players.LocalPlayer
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -344,6 +347,9 @@ MainTab:CreateButton({
                 and workspace.NPCS.Eloise:FindFirstChild("HumanoidRootPart")
                 and workspace.NPCS.Eloise.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
 
+            -- Tìm sự kiện UpdateGearStock
+            local updateGearEvent = game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("UpdateGearStock")
+
             if hrp and tpPoint and prompt then
                 -- Teleport tới Tutorial_Point_3
                 hrp.CFrame = tpPoint.CFrame + Vector3.new(0, 3, 0)
@@ -354,6 +360,14 @@ MainTab:CreateButton({
                 -- Ấn prompt để mở Gear GUI
                 fireproximityprompt(prompt)
                 print("✅ Đã mở Gear Shop")
+
+                -- Gọi sự kiện UpdateGearStock để cập nhật stock
+                if updateGearEvent then
+                    updateGearEvent:FireServer()  -- Gửi sự kiện tới server
+                    print("✅ Đã gọi sự kiện UpdateGearStock")
+                else
+                    warn("⚠️ Không tìm thấy sự kiện UpdateGearStock.")
+                end
             else
                 warn("⚠️ Không tìm thấy vị trí hoặc prompt.")
             end
@@ -361,8 +375,6 @@ MainTab:CreateButton({
     end
 })
 
--- Tạo Button trong MainTab cho "Egg GUI"
-MainTab:CreateButton({
     Name = "Egg GUI",  -- Tên button trong EventTab
     Callback = function()
         -- Khi nhấn nút, teleport người chơi đến NPC Eloise
