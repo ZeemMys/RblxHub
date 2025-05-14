@@ -60,18 +60,15 @@ MainTab:CreateToggle({
         end
 
         task.spawn(function()
-            local TweenService = game:GetService("TweenService")
             local Players = game:GetService("Players")
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            local function tweenTo(part)
+            -- ✅ Dịch chuyển nhanh, đứng trên quả 4 studs
+            local function teleportTo(part)
                 if not part or not part:IsA("BasePart") then return end
-                local goal = {CFrame = part.CFrame + Vector3.new(0, 2, 0)}
-                local tween = TweenService:Create(hrp, TweenInfo.new(0.5), goal)
-                tween:Play()
-                tween.Completed:Wait()
-                task.wait(0.2)
+                hrp.CFrame = CFrame.new(part.Position + Vector3.new(0, 4, 0))
+                task.wait(0.1)
             end
 
             local function getFarmYouAreIn()
@@ -114,7 +111,7 @@ MainTab:CreateToggle({
 
                         local harvested = false
 
-                        -- Cây có folder Fruits
+                        -- 🌳 Loại cây có Fruits
                         local fruitsFolder = plant:FindFirstChild("Fruits")
                         if fruitsFolder then
                             local growFolder = fruitsFolder:FindFirstChild("Grow") or fruitsFolder
@@ -123,7 +120,7 @@ MainTab:CreateToggle({
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
                                     local prompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if prompt then
-                                        tweenTo(fruit)
+                                        teleportTo(fruit)
                                         fireproximityprompt(prompt)
                                         task.wait(0.3)
                                         harvested = true
@@ -132,14 +129,14 @@ MainTab:CreateToggle({
                             end
                         end
 
-                        -- Cây không có Fruits: tìm prompt trực tiếp
+                        -- 🥕 Loại cây không có Fruits
                         if not harvested then
                             for _, part in ipairs(plant:GetDescendants()) do
                                 if not _G.AutoHarvestUniversal then return end
                                 if part:IsA("BasePart") then
                                     local prompt = part:FindFirstChildWhichIsA("ProximityPrompt")
                                     if prompt then
-                                        tweenTo(part)
+                                        teleportTo(part)
                                         fireproximityprompt(prompt)
                                         task.wait(0.3)
                                     end
