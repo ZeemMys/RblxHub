@@ -54,10 +54,24 @@ MainTab:CreateToggle({
     CurrentValue = false,
     Callback = function(Value)
         _G.AutoHarvestUniversal = Value
+        _G.TotalHarvested = 0
+
+        local StarterGui = game:GetService("StarterGui")
+        local function notify(message)
+            pcall(function()
+                StarterGui:SetCore("SendNotification", {
+                    Title = "🌾 Auto Harvest",
+                    Text = message,
+                    Duration = 3
+                })
+            end)
+        end
 
         if not Value then
-            warn("⛔ Đã tắt Auto Harvest")
+            notify("⛔ Đã tắt Auto Harvest")
             return
+        else
+            notify("✅ Đã bật Auto Harvest")
         end
 
         task.spawn(function()
@@ -65,7 +79,6 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- 🌀 Teleport đến part (cao hơn 4 stud để không mắc kẹt)
             local function teleportTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 local targetPosition = part.Position + Vector3.new(0, 4, 0)
@@ -73,7 +86,6 @@ MainTab:CreateToggle({
                 task.wait(0.5)
             end
 
-            -- 🎯 Hái một prompt nếu khả thi
             local function tryHarvestPrompt(prompt, target)
                 if not prompt or not prompt:IsA("ProximityPrompt") then return end
                 if not target or not target:IsA("BasePart") then return end
@@ -85,6 +97,8 @@ MainTab:CreateToggle({
                     if not _G.AutoHarvestUniversal then return end
                     if prompt.Enabled and (target.Position - hrp.Position).Magnitude <= prompt.MaxActivationDistance then
                         fireproximityprompt(prompt)
+                        _G.TotalHarvested += 1
+                        notify("🌿 Đã hái: " .. _G.TotalHarvested .. " cây")
                         task.wait(0.5)
                         return true
                     end
@@ -93,7 +107,6 @@ MainTab:CreateToggle({
                 return false
             end
 
-            -- ✅ Tìm farm của người chơi thông qua SurfaceGui.TextLabel
             local function getMyFarm()
                 local farmFolder = workspace:FindFirstChild("Farm")
                 if not farmFolder then return nil end
@@ -109,7 +122,7 @@ MainTab:CreateToggle({
                                 local text = obj.Text
                                 local ownerName =
                                     text:match("^(.-)'s Garden") or
-                                    text:match("^(.-)’s Garden") -- hỗ trợ cả dấu nháy Unicode
+                                    text:match("^(.-)’s Garden")
                                 if ownerName and ownerName:lower() == myNameLower then
                                     print("✅ Tìm đúng farm của bạn:", ownerName)
                                     return farm
@@ -123,7 +136,6 @@ MainTab:CreateToggle({
                 return nil
             end
 
-            -- 🌱 Kiểm tra cây có quả chưa
             local function isPlantMature(plant)
                 local fruitsFolder = plant:FindFirstChild("Fruits")
                 if fruitsFolder then
@@ -137,7 +149,6 @@ MainTab:CreateToggle({
                 return false
             end
 
-            -- 🔁 Vòng lặp chính
             while task.wait(1) do
                 if not _G.AutoHarvestUniversal then break end
 
@@ -145,17 +156,15 @@ MainTab:CreateToggle({
                     local farm = getMyFarm()
                     if not farm then return end
 
-                    local important = farm:FindFirstChild("Important")
-                    local plantsFolder = important and important:FindFirstChild("Plants_Physical")
+                    local plantsFolder = farm:FindFirstChild("Important") and farm.Important:FindFirstChild("Plants_Physical")
                     if not plantsFolder then return end
 
                     for _, plant in ipairs(plantsFolder:GetChildren()) do
                         if not _G.AutoHarvestUniversal then return end
 
                         local harvested = false
-
-                        -- 🌳 Cây có Fruits
                         local fruitsFolder = plant:FindFirstChild("Fruits")
+
                         if fruitsFolder and isPlantMature(plant) then
                             local growFolder = fruitsFolder:FindFirstChild("Grow") or fruitsFolder
                             for _, fruit in ipairs(growFolder:GetChildren()) do
@@ -163,14 +172,14 @@ MainTab:CreateToggle({
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
                                     local prompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if prompt then
-                                        tryHarvestPrompt(prompt, fruit)
-                                        harvested = true
+                                        if tryHarvestPrompt(prompt, fruit) then
+                                            harvested = true
+                                        end
                                     end
                                 end
                             end
                         end
 
-                        -- 🥕 Cây không có Fruits → hái trực tiếp từ part
                         if not harvested then
                             for _, part in ipairs(plant:GetDescendants()) do
                                 if not _G.AutoHarvestUniversal then return end
