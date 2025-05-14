@@ -332,10 +332,14 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+-- Tutorial Point Locations
 local tutorialPoint_3 = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_3")
+local tutorialPoint_4 = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_4")
 
+-- Sự kiện BuyGearStock từ ReplicatedStorage
 local buyGearEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearStock")
 
+-- Tạo Button trong MainTab cho "Gear GUI"
 MainTab:CreateButton({
     Name = "Gear GUI",  -- Tên button trong EventTab
     Callback = function()
@@ -345,6 +349,7 @@ MainTab:CreateButton({
             print("Đã teleport đến Tutorial_Point_3")
         end
 
+        -- Gọi sự kiện BuyGearStock sau khi teleport
         if buyGearEvent then
             buyGearEvent:FireServer()  -- Gửi sự kiện BuyGearStock đến Server
             print("Đã gọi sự kiện BuyGearStock")
@@ -352,22 +357,14 @@ MainTab:CreateButton({
     end,
 })
 
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
-local tutorialPoint = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_4")
-
--- Tạo toggle trong EventTab
+-- Tạo Button trong MainTab cho "Egg GUI"
 MainTab:CreateButton({
-    Name = "Egg GUI",  -- Tên toggle trong EventTab
-    CurrentValue = false,
-    Callback = function(Value)
-        if Value then
-            -- Khi bật toggle, teleport đến Tutorial_Point_4
-            if tutorialPoint then
-                player.Character:SetPrimaryPartCFrame(tutorialPoint.CFrame)
-                print("Đã teleport đến Tutorial_Point_4")
-            end
+    Name = "Egg GUI",  -- Tên button trong EventTab
+    Callback = function()
+        -- Khi nhấn nút, teleport đến Tutorial_Point_4
+        if tutorialPoint_4 then
+            player.Character:SetPrimaryPartCFrame(tutorialPoint_4.CFrame)
+            print("Đã teleport đến Tutorial_Point_4")
         end
     end,
 })
