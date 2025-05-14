@@ -892,7 +892,7 @@ end
 local function updateESP()
     -- Nếu bật ESP
     if ESPEnabled then
-        -- Nếu chưa có ESP nào, tạo mới
+        -- Kiểm tra nếu ESP đã được tạo hay chưa, chỉ tạo khi chưa có ESP nào
         if #createdESPs == 0 then
             scanForFruitESP()  -- Quét và tạo ESP nếu chưa có ESP nào
         end
@@ -901,7 +901,7 @@ local function updateESP()
         for _, esp in ipairs(createdESPs) do
             esp:Destroy()  -- Xóa ESP
         end
-        -- Xóa các item trong bảng
+        -- Reset lại bảng ESP đã tạo
         createdESPs = {}
     end
 end
@@ -915,6 +915,3 @@ EventTab:CreateToggle({
         updateESP()  -- Cập nhật ESP khi toggle thay đổi
     end,
 })
-
--- Gọi hàm để quét và tạo ESP khi script chạy lần đầu
-scanForFruitESP()
