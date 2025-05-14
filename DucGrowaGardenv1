@@ -807,77 +807,54 @@ game.Players.PlayerRemoving:Connect(function(player)
 end)
 
 ---------Event--------
-local moonlitESPEnabled = false
-local moonlitESPMarkers = {}
+local ESPEnabled = false
 
--- Xóa các marker cũ
-local function clearMoonlitESP()
-    for _, m in ipairs(moonlitESPMarkers) do
-        if m and m.Parent then
-            m:Destroy()
-        end
-    end
-    moonlitESPMarkers = {}
-end
-
--- Tạo vòng tròn tím ESP
-local function createMoonlitCircleESP(part)
-    local marker = Instance.new("BillboardGui")
-    marker.Name = "MoonlitESP"
-    marker.Size = UDim2.new(0, 40, 0, 40)
-    marker.Adornee = part
-    marker.AlwaysOnTop = true
-    marker.Parent = part
+-- Hàm tạo ESP cho trái cây (có thể là vòng tròn tím hoặc gì đó)
+local function createPurpleCircleESP(part)
+    local esp = Instance.new("BillboardGui")
+    esp.Name = "FruitESP"
+    esp.Size = UDim2.new(0, 40, 0, 40)
+    esp.Adornee = part
+    esp.AlwaysOnTop = true
+    esp.Parent = part
 
     local circle = Instance.new("ImageLabel")
     circle.Size = UDim2.new(1, 0, 1, 0)
     circle.BackgroundTransparency = 1
-    circle.Image = "rbxassetid://6023426915" -- Vòng tròn trơn
-    circle.ImageColor3 = Color3.fromRGB(170, 0, 255) -- Màu tím
-    circle.ImageTransparency = 0.1
-    circle.Parent = marker
-
-    table.insert(moonlitESPMarkers, marker)
+    circle.Image = "rbxassetid://6023426915" -- Hình ảnh vòng tròn tím
+    circle.Parent = esp
 end
 
--- Quét toàn bộ Farm để tìm ParticleEmitter tên MoonlitFruit
-local function scanMoonlitFruits()
-    clearMoonlitESP()
-
-    local farmFolder = workspace:FindFirstChild("Farm")
-    if not farmFolder then return end
-
-    for _, farm in ipairs(farmFolder:GetChildren()) do
-        local important = farm:FindFirstChild("Important")
-        local plantsFolder = important and important:FindFirstChild("Plants_Physical")
-        if plantsFolder then
-            for _, plant in ipairs(plantsFolder:GetChildren()) do
-                for _, part in ipairs(plant:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        for _, child in ipairs(part:GetChildren()) do
-                            if child:IsA("ParticleEmitter") and child.Name == "MoonlitFruit" then
-                                createMoonlitCircleESP(part)
-                            end
-                        end
+-- Cập nhật ESP (Bật/Tắt khi toggle)
+local function updateESP()
+    -- Nếu bật ESP, tạo ESP cho tất cả các quả
+    if ESPEnabled then
+        -- Duyệt qua tất cả các quả và tạo ESP cho mỗi quả
+        for _, fruit in pairs(workspace.Farm:GetChildren()) do
+            if fruit:FindFirstChild("Important") then
+                for _, fruitPart in pairs(fruit.Important:GetChildren()) do
+                    if fruitPart:IsA("Part") then
+                        createPurpleCircleESP(fruitPart)
                     end
                 end
+            end
+        end
+    else
+        -- Nếu tắt, xóa tất cả các ESP hiện có
+        for _, esp in pairs(workspace:GetChildren()) do
+            if esp:IsA("BillboardGui") and esp.Name == "FruitESP" then
+                esp:Destroy()
             end
         end
     end
 end
 
--- Toggle ESP
+-- Tạo toggle trong EventTab
 EventTab:CreateToggle({
-    Name = "Moonlit Fruit ESP",
+    Name = "ESP Moonlit Fruit",
     CurrentValue = false,
     Callback = function(Value)
-        moonlitESPEnabled = Value
-        if Value then
-            scanMoonlitFruits()
-            print("🔍 ESP cho MoonlitFruit đã bật.")
-        else
-            clearMoonlitESP()
-            print("⛔ ESP cho MoonlitFruit đã tắt.")
-        end
+        ESPEnabled = Value
+        updateESP()
     end,
-})
+})    
