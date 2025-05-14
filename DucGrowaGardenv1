@@ -336,7 +336,7 @@ local tutorialPoint_3 = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_3
 
 local buyGearEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearStock")
 
-EventTab:CreateButton({
+MainTab:CreateButton({
     Name = "Gear GUI",  -- Tên button trong EventTab
     Callback = function()
         -- Khi nhấn nút, teleport đến Tutorial_Point_3
