@@ -807,3 +807,77 @@ game.Players.PlayerRemoving:Connect(function(player)
 end)
 
 ---------Event--------
+local moonlitESPEnabled = false
+local moonlitESPMarkers = {}
+
+-- Xóa các marker cũ
+local function clearMoonlitESP()
+    for _, m in ipairs(moonlitESPMarkers) do
+        if m and m.Parent then
+            m:Destroy()
+        end
+    end
+    moonlitESPMarkers = {}
+end
+
+-- Tạo vòng tròn tím ESP
+local function createMoonlitCircleESP(part)
+    local marker = Instance.new("BillboardGui")
+    marker.Name = "MoonlitESP"
+    marker.Size = UDim2.new(0, 40, 0, 40)
+    marker.Adornee = part
+    marker.AlwaysOnTop = true
+    marker.Parent = part
+
+    local circle = Instance.new("ImageLabel")
+    circle.Size = UDim2.new(1, 0, 1, 0)
+    circle.BackgroundTransparency = 1
+    circle.Image = "rbxassetid://6023426915" -- Vòng tròn trơn
+    circle.ImageColor3 = Color3.fromRGB(170, 0, 255) -- Màu tím
+    circle.ImageTransparency = 0.1
+    circle.Parent = marker
+
+    table.insert(moonlitESPMarkers, marker)
+end
+
+-- Quét toàn bộ Farm để tìm ParticleEmitter tên MoonlitFruit
+local function scanMoonlitFruits()
+    clearMoonlitESP()
+
+    local farmFolder = workspace:FindFirstChild("Farm")
+    if not farmFolder then return end
+
+    for _, farm in ipairs(farmFolder:GetChildren()) do
+        local important = farm:FindFirstChild("Important")
+        local plantsFolder = important and important:FindFirstChild("Plants_Physical")
+        if plantsFolder then
+            for _, plant in ipairs(plantsFolder:GetChildren()) do
+                for _, part in ipairs(plant:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        for _, child in ipairs(part:GetChildren()) do
+                            if child:IsA("ParticleEmitter") and child.Name == "MoonlitFruit" then
+                                createMoonlitCircleESP(part)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+-- Toggle ESP
+EventTab:CreateToggle({
+    Name = "Moonlit Fruit ESP",
+    CurrentValue = false,
+    Callback = function(Value)
+        moonlitESPEnabled = Value
+        if Value then
+            scanMoonlitFruits()
+            print("🔍 ESP cho MoonlitFruit đã bật.")
+        else
+            clearMoonlitESP()
+            print("⛔ ESP cho MoonlitFruit đã tắt.")
+        end
+    end,
+})
