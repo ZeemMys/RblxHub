@@ -812,7 +812,7 @@ local function createPurpleCircleESP(part)
     -- Tạo BillboardGui để hiển thị ESP
     local esp = Instance.new("BillboardGui")
     esp.Name = "FruitESP"
-    esp.Size = UDim2.new(0, 40, 0, 40)
+    esp.Size = UDim2.new(0, 30, 0, 30)  -- Kích thước nhỏ hơn
     esp.Adornee = part
     esp.AlwaysOnTop = true
     esp.Parent = part
@@ -887,4 +887,4 @@ EventTab:CreateToggle({
 })
 
 -- Gọi hàm để quét và tạo ESP khi script chạy
-scanForFruitESP()
+scanForFruitESP()  
