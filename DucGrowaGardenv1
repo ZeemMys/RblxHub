@@ -811,6 +811,10 @@ local moonlitESPEnabled = false
 local moonlitESPObjects = {}
 
 -- Tạo chấm tròn tím
+local moonlitESPEnabled = false
+local moonlitESPObjects = {}
+
+-- Tạo chấm tròn tím
 local function createMoonlitMarker(part)
     local sphere = Instance.new("SphereHandleAdornment")
     sphere.Name = "MoonlitESP"
@@ -850,9 +854,14 @@ local function scanForMoonlitFruits()
                     for _, fruit in ipairs(fruitsFolder:GetChildren()) do
                         if fruit:IsA("Model") and fruit.PrimaryPart then
                             local primary = fruit.PrimaryPart
-                            if primary:FindFirstChild("MoonlitParticle") then
-                                local marker = createMoonlitMarker(primary)
-                                table.insert(moonlitESPObjects, marker)
+                            
+                            -- Kiểm tra nếu có ParticleEmitter (tên là Particle)
+                            for _, particle in ipairs(fruit:GetDescendants()) do
+                                if particle:IsA("ParticleEmitter") and particle.Name == "Particle" then
+                                    local marker = createMoonlitMarker(primary)
+                                    table.insert(moonlitESPObjects, marker)
+                                    break -- Dừng kiểm tra sau khi đã tìm thấy ParticleEmitter
+                                end
                             end
                         end
                     end
