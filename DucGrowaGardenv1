@@ -808,42 +808,59 @@ end)
 
 ---------Event--------
 local moonlitESPEnabled = false
-local moonlitESPMarkers = {}
+local moonlitESPObjects = {}
 
-local function createPurpleDot(part)
-    if not part:IsA("BasePart") then return end
-    if moonlitESPMarkers[part] then return end
-
-    local dot = Instance.new("BillboardGui")
-    dot.Name = "MoonlitDot"
-    dot.Size = UDim2.new(0, 10, 0, 10)
-    dot.AlwaysOnTop = true
-    dot.StudsOffset = Vector3.new(0, 1.5, 0)
-    dot.Adornee = part
-    dot.Parent = part
-
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(1, 0, 1, 0)
-    frame.BackgroundColor3 = Color3.fromRGB(170, 0, 255) -- Tím
-    frame.BorderSizePixel = 0
-    frame.BackgroundTransparency = 0
-    frame.AnchorPoint = Vector2.new(0.5, 0.5)
-    frame.Position = UDim2.new(0.5, 0, 0.5, 0)
-    frame.Parent = dot
-    frame.ZIndex = 10
-    frame.ClipsDescendants = true
-    frame.CornerRadius = UDim.new(1, 0)
-
-    moonlitESPMarkers[part] = dot
+local function createMoonlitMarker(part)
+    local sphere = Instance.new("SphereHandleAdornment")
+    sphere.Name = "MoonlitESP"
+    sphere.Adornee = part
+    sphere.AlwaysOnTop = true
+    sphere.ZIndex = 10
+    sphere.Radius = 0.5 -- Bán kính hình cầu (có thể điều chỉnh)
+    sphere.Color3 = Color3.fromRGB(128, 0, 255) -- Màu tím
+    sphere.Transparency = 0.25
+    sphere.Parent = part
+    return sphere
 end
 
-local function clearAllDots()
-    for part, dot in pairs(moonlitESPMarkers) do
-        if dot and dot.Parent then
-            dot:Destroy()
+local function removeAllMoonlitMarkers()
+    for _, adornments in pairs(moonlitESPObjects) do
+        if adornments and adornments.Parent then
+            adornments:Destroy()
         end
     end
-    moonlitESPMarkers = {}
+    moonlitESPObjects = {}
+end
+
+local function scanAndMarkMoonlitFruits()
+    removeAllMoonlitMarkers()
+
+    local farmFolder = workspace:FindFirstChild("Farm")
+    if not farmFolder then return end
+
+    for _, farm in ipairs(farmFolder:GetChildren()) do
+        local important = farm:FindFirstChild("Important")
+        local plantsFolder = important and important:FindFirstChild("Plants_Physical")
+
+        if plantsFolder then
+            for _, model in ipairs(plantsFolder:GetChildren()) do
+                local fruits = model:FindFirstChild("Fruits")
+                local growFolder = fruits and (fruits:FindFirstChild("Grow") or fruits)
+
+                if growFolder then
+                    for _, fruit in ipairs(growFolder:GetChildren()) do
+                        if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
+                            local moonlitFX = fruit:FindFirstChild("MoonlitParticle") or fruit:FindFirstChild("Moonlit")
+                            if moonlitFX then
+                                local marker = createMoonlitMarker(fruit)
+                                moonlitESPObjects[#moonlitESPObjects + 1] = marker
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
 end
 
 EventTab:CreateToggle({
@@ -852,31 +869,17 @@ EventTab:CreateToggle({
     Callback = function(Value)
         moonlitESPEnabled = Value
 
-        if not Value then
-            clearAllDots()
-            return
+        if Value then
+            scanAndMarkMoonlitFruits()
+            -- Cập nhật định kỳ mỗi vài giây để quét thêm fruit mới
+            task.spawn(function()
+                while moonlitESPEnabled do
+                    scanAndMarkMoonlitFruits()
+                    task.wait(5)
+                end
+            end)
+        else
+            removeAllMoonlitMarkers()
         end
-
-        local particleFolder = game:GetService("ReplicatedStorage"):FindFirstChild("Mutation_FX")
-        local moonlitFolder = particleFolder and particleFolder:FindFirstChild("Unused") and particleFolder.Unused:FindFirstChild("MoonlitParticle")
-
-        if not moonlitFolder then
-            warn("❌ Không tìm thấy MoonlitParticle!")
-            return
-        end
-
-        -- Gắn dấu chấm tím cho các part hiện có
-        for _, part in ipairs(moonlitFolder:GetDescendants()) do
-            if part:IsA("BasePart") then
-                createPurpleDot(part)
-            end
-        end
-
-        -- Theo dõi khi có particle mới
-        moonlitFolder.DescendantAdded:Connect(function(newPart)
-            if moonlitESPEnabled and newPart:IsA("BasePart") then
-                createPurpleDot(newPart)
-            end
-        end)
-    end
+    end,
 })
