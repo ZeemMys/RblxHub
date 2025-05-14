@@ -139,7 +139,7 @@ MainTab:CreateToggle({
                                     if prompt then
                                         teleportTo(part)
                                         fireproximityprompt(prompt)
-                                        task.wait(0.3)
+                                        task.wait(0.6)
                                     end
                                 end
                             end
