@@ -330,8 +330,31 @@ MainTab:CreateButton({
 
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- Vị trí teleport
+local tutorialPoint_3 = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_3")
+
+local buyGearEvent = ReplicatedStorage:WaitForChild("GameEvents"):WaitForChild("BuyGearStock")
+
+EventTab:CreateButton({
+    Name = "Gear GUI",  -- Tên button trong EventTab
+    Callback = function()
+        -- Khi nhấn nút, teleport đến Tutorial_Point_3
+        if tutorialPoint_3 then
+            player.Character:SetPrimaryPartCFrame(tutorialPoint_3.CFrame)
+            print("Đã teleport đến Tutorial_Point_3")
+        end
+
+        if buyGearEvent then
+            buyGearEvent:FireServer()  -- Gửi sự kiện BuyGearStock đến Server
+            print("Đã gọi sự kiện BuyGearStock")
+        end
+    end,
+})
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
 local tutorialPoint = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_4")
 
 -- Tạo toggle trong EventTab
@@ -344,29 +367,6 @@ MainTab:CreateButton({
             if tutorialPoint then
                 player.Character:SetPrimaryPartCFrame(tutorialPoint.CFrame)
                 print("Đã teleport đến Tutorial_Point_4")
-            end
-        end
-    end,
-})
-
--- Client Script (gắn vào StarterPlayer -> StarterPlayerScripts)
-
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
-
--- Vị trí teleport
-local tutorialPoint_3 = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_3")
-
--- Tạo toggle trong EventTab cho "Gear GUI"
-MainTab:CreateButton({
-    Name = "Gear GUI",  -- Tên toggle trong EventTab
-    CurrentValue = false,
-    Callback = function(Value)
-        if Value then
-            -- Khi bật toggle, teleport đến Tutorial_Point_3
-            if tutorialPoint_3 then
-                player.Character:SetPrimaryPartCFrame(tutorialPoint_3.CFrame)
-                print("Đã teleport đến Tutorial_Point_3")
             end
         end
     end,
