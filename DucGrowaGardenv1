@@ -858,17 +858,14 @@ local function scanForFruitESP()
     end
 end
 
--- Gọi hàm để quét và tạo ESP
-scanForFruitESP()
-
--- Cập nhật toggle ESP trong EventTab
+-- Biến lưu trạng thái của ESP (bật/tắt)
 local ESPEnabled = false
 
--- Cập nhật ESP (Bật/Tắt khi toggle)
+-- Hàm cập nhật ESP
 local function updateESP()
     -- Nếu bật ESP, quét và tạo ESP cho các quả
     if ESPEnabled then
-        scanForFruitESP() -- Quét và tạo ESP
+        scanForFruitESP()  -- Quét và tạo ESP
     else
         -- Nếu tắt ESP, xóa tất cả các ESP hiện có
         for _, esp in pairs(workspace:GetChildren()) do
@@ -888,3 +885,6 @@ EventTab:CreateToggle({
         updateESP()  -- Cập nhật ESP khi toggle thay đổi
     end,
 })
+
+-- Gọi hàm để quét và tạo ESP khi script chạy
+scanForFruitESP()
