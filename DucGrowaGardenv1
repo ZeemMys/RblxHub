@@ -810,50 +810,49 @@ end)
 local moonlitESPEnabled = false
 local moonlitESPObjects = {}
 
+-- Tạo chấm tròn tím
 local function createMoonlitMarker(part)
     local sphere = Instance.new("SphereHandleAdornment")
     sphere.Name = "MoonlitESP"
     sphere.Adornee = part
     sphere.AlwaysOnTop = true
     sphere.ZIndex = 10
-    sphere.Radius = 0.5 -- Bán kính hình cầu (có thể điều chỉnh)
-    sphere.Color3 = Color3.fromRGB(128, 0, 255) -- Màu tím
+    sphere.Radius = 0.6
+    sphere.Color3 = Color3.fromRGB(170, 0, 255)
     sphere.Transparency = 0.25
     sphere.Parent = part
     return sphere
 end
 
-local function removeAllMoonlitMarkers()
-    for _, adornments in pairs(moonlitESPObjects) do
-        if adornments and adornments.Parent then
-            adornments:Destroy()
+-- Xoá toàn bộ chấm
+local function clearAllMoonlitESP()
+    for _, obj in pairs(moonlitESPObjects) do
+        if obj and obj.Parent then
+            obj:Destroy()
         end
     end
-    moonlitESPObjects = {}
+    table.clear(moonlitESPObjects)
 end
 
-local function scanAndMarkMoonlitFruits()
-    removeAllMoonlitMarkers()
+-- Quét tất cả fruit trong các Farms
+local function scanForMoonlitFruits()
+    clearAllMoonlitESP()
 
     local farmFolder = workspace:FindFirstChild("Farm")
     if not farmFolder then return end
 
     for _, farm in ipairs(farmFolder:GetChildren()) do
-        local important = farm:FindFirstChild("Important")
-        local plantsFolder = important and important:FindFirstChild("Plants_Physical")
-
-        if plantsFolder then
-            for _, model in ipairs(plantsFolder:GetChildren()) do
-                local fruits = model:FindFirstChild("Fruits")
-                local growFolder = fruits and (fruits:FindFirstChild("Grow") or fruits)
-
-                if growFolder then
-                    for _, fruit in ipairs(growFolder:GetChildren()) do
-                        if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
-                            local moonlitFX = fruit:FindFirstChild("MoonlitParticle") or fruit:FindFirstChild("Moonlit")
-                            if moonlitFX then
-                                local marker = createMoonlitMarker(fruit)
-                                moonlitESPObjects[#moonlitESPObjects + 1] = marker
+        local plants = farm:FindFirstChild("Important") and farm.Important:FindFirstChild("Plants_Physical")
+        if plants then
+            for _, plant in ipairs(plants:GetChildren()) do
+                local fruitsFolder = plant:FindFirstChild("Fruits")
+                if fruitsFolder then
+                    for _, fruit in ipairs(fruitsFolder:GetChildren()) do
+                        if fruit:IsA("Model") and fruit.PrimaryPart then
+                            local primary = fruit.PrimaryPart
+                            if primary:FindFirstChild("MoonlitParticle") then
+                                local marker = createMoonlitMarker(primary)
+                                table.insert(moonlitESPObjects, marker)
                             end
                         end
                     end
@@ -863,23 +862,25 @@ local function scanAndMarkMoonlitFruits()
     end
 end
 
+-- Theo dõi toggle
+task.spawn(function()
+    while task.wait(2) do
+        if moonlitESPEnabled then
+            scanForMoonlitFruits()
+        end
+    end
+end)
+
+-- Toggle ESP
 EventTab:CreateToggle({
     Name = "ESP Moonlit Fruit",
     CurrentValue = false,
     Callback = function(Value)
         moonlitESPEnabled = Value
-
-        if Value then
-            scanAndMarkMoonlitFruits()
-            -- Cập nhật định kỳ mỗi vài giây để quét thêm fruit mới
-            task.spawn(function()
-                while moonlitESPEnabled do
-                    scanAndMarkMoonlitFruits()
-                    task.wait(5)
-                end
-            end)
+        if not Value then
+            clearAllMoonlitESP()
         else
-            removeAllMoonlitMarkers()
+            scanForMoonlitFruits()
         end
-    end,
+    end
 })
