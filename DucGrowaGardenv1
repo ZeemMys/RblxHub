@@ -807,12 +807,18 @@ game.Players.PlayerRemoving:Connect(function(player)
 end)
 
 ---------Event--------
+-- Biến lưu trạng thái của ESP (bật/tắt)
+local ESPEnabled = false
+
+-- Bảng lưu trữ các ESP đã tạo
+local createdESPs = {}
+
 -- Hàm tạo vòng tròn tím ESP
 local function createPurpleCircleESP(part)
     -- Tạo BillboardGui để hiển thị ESP
     local esp = Instance.new("BillboardGui")
     esp.Name = "FruitESP"
-    esp.Size = UDim2.new(0, 40, 0, 40)
+    esp.Size = UDim2.new(0, 30, 0, 30)  -- Kích thước nhỏ hơn
     esp.Adornee = part
     esp.AlwaysOnTop = true
     esp.Parent = part
@@ -825,6 +831,9 @@ local function createPurpleCircleESP(part)
     circle.ImageColor3 = Color3.fromRGB(170, 0, 255) -- Màu tím
     circle.ImageTransparency = 0.5
     circle.Parent = esp
+
+    -- Lưu ESP vào bảng
+    table.insert(createdESPs, esp)
 end
 
 -- Hàm quét và kiểm tra các ParticleEmitter
@@ -858,9 +867,6 @@ local function scanForFruitESP()
     end
 end
 
--- Biến lưu trạng thái của ESP (bật/tắt)
-local ESPEnabled = false
-
 -- Hàm cập nhật ESP
 local function updateESP()
     -- Nếu bật ESP, quét và tạo ESP cho các quả
@@ -868,11 +874,11 @@ local function updateESP()
         scanForFruitESP()  -- Quét và tạo ESP
     else
         -- Nếu tắt ESP, xóa tất cả các ESP hiện có
-        for _, esp in pairs(workspace:GetChildren()) do
-            if esp:IsA("BillboardGui") and esp.Name == "FruitESP" then
-                esp:Destroy()
-            end
+        for _, esp in ipairs(createdESPs) do
+            esp:Destroy()  -- Xóa ESP
         end
+        -- Xóa các item trong bảng
+        createdESPs = {}
     end
 end
 
@@ -886,5 +892,5 @@ EventTab:CreateToggle({
     end,
 })
 
--- Gọi hàm để quét và tạo ESP khi script chạy
+-- Gọi hàm để quét và tạo ESP khi script chạy lần đầu
 scanForFruitESP()
