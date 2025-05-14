@@ -72,6 +72,7 @@ MainTab:CreateToggle({
                 task.wait(0.1)
             end
 
+            -- ✅ Lấy vườn của người chơi
             local function getFarmYouAreIn()
                 local farmFolder = workspace:FindFirstChild("Farm")
                 if not farmFolder then return nil end
@@ -97,6 +98,21 @@ MainTab:CreateToggle({
                 return closestFarm
             end
 
+            -- ✅ Kiểm tra cây đã trưởng thành chưa
+            local function isPlantMature(plant)
+                -- Cây có folder Fruits thì kiểm tra trạng thái của quả
+                local fruitsFolder = plant:FindFirstChild("Fruits")
+                if fruitsFolder then
+                    local growFolder = fruitsFolder:FindFirstChild("Grow") or fruitsFolder
+                    for _, fruit in ipairs(growFolder:GetChildren()) do
+                        if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
+                            return true  -- Cây đã có quả để hái
+                        end
+                    end
+                end
+                return false  -- Cây không có quả
+            end
+
             while task.wait(1) do
                 if not _G.AutoHarvestUniversal then break end
 
@@ -112,9 +128,9 @@ MainTab:CreateToggle({
 
                         local harvested = false
 
-                        -- 🌳 Loại cây có Fruits
+                        -- 🌳 Loại cây có Fruits và đã trưởng thành
                         local fruitsFolder = plant:FindFirstChild("Fruits")
-                        if fruitsFolder then
+                        if fruitsFolder and isPlantMature(plant) then
                             local growFolder = fruitsFolder:FindFirstChild("Grow") or fruitsFolder
                             for _, fruit in ipairs(growFolder:GetChildren()) do
                                 if not _G.AutoHarvestUniversal then return end
@@ -130,7 +146,7 @@ MainTab:CreateToggle({
                             end
                         end
 
-                        -- 🥕 Loại cây không có Fruits
+                        -- 🥕 Loại cây không có Fruits và đã trưởng thành
                         if not harvested then
                             for _, part in ipairs(plant:GetDescendants()) do
                                 if not _G.AutoHarvestUniversal then return end
