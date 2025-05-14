@@ -371,6 +371,26 @@ MainTab:CreateButton({
     end
 })
 
+MainTab:CreateButton({
+    Name = "Egg GUI",  -- Tên button trong EventTab
+    Callback = function()
+        if humanoidRootPart then
+            -- Teleport người chơi đến vị trí gần NPC Eloise (gần ProximityPrompt)
+            player.Character:SetPrimaryPartCFrame(humanoidRootPart.CFrame + Vector3.new(0, 3, 0)) -- Thêm 3 để đứng gần NPC
+
+            print("Đã teleport đến NPC Eloise")
+
+            -- Tạo một khoảng dừng để người chơi có thể đến gần ProximityPrompt
+            wait(0.5)  -- Đợi một chút để người chơi đứng đúng vị trí
+
+            -- Tự động kích hoạt ProximityPrompt sau khi teleport
+            if proximityPrompt then
+                fireproximityprompt(proximityPrompt)  -- Kích hoạt ProximityPrompt
+                print("Đã kích hoạt ProximityPrompt với NPC Eloise")
+            end
+        end
+    end,
+})
 ---------Funny------------
 local Button = FunnyTab:CreateButton({
    Name = "Click To See What Happen:)",
