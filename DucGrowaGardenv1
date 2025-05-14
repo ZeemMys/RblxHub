@@ -858,15 +858,18 @@ local function scanForMoonlitFruits()
                 local fruitsFolder = plant:FindFirstChild("Fruits")
                 if fruitsFolder then
                     for _, fruit in ipairs(fruitsFolder:GetChildren()) do
-                        if fruit:IsA("Model") and fruit.PrimaryPart then
-                            local primary = fruit.PrimaryPart
-                            
-                            -- Kiểm tra nếu có ParticleEmitter (tên là Swirls, Effects, hay màu sắc tím)
-                            for _, particle in ipairs(fruit:GetDescendants()) do
-                                if isPurpleParticle(particle) then
-                                    local marker = createMoonlitMarker(primary)
-                                    table.insert(moonlitESPObjects, marker)
-                                    break -- Dừng kiểm tra sau khi đã tìm thấy ParticleEmitter với màu tím
+                        if fruit:IsA("Model") then
+                            -- Kiểm tra tất cả các Part trong mô hình trái cây
+                            for _, part in ipairs(fruit:GetChildren()) do
+                                if part:IsA("Part") then
+                                    -- Kiểm tra nếu có ParticleEmitter trong Part đó
+                                    for _, particle in ipairs(part:GetDescendants()) do
+                                        if isPurpleParticle(particle) then
+                                            local marker = createMoonlitMarker(part)
+                                            table.insert(moonlitESPObjects, marker)
+                                            break -- Dừng kiểm tra sau khi đã tìm thấy ParticleEmitter với màu tím
+                                        end
+                                    end
                                 end
                             end
                         end
