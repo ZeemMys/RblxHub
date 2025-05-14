@@ -44,6 +44,7 @@ Rayfield:Notify({
 local MainTab = Window:CreateTab("Main", 4483362458) -- Title, Image
 local PlayerTab = Window:CreateTab("Player", 4483362458) -- Title, Image
 local FunnyTab = Window:CreateTab("Fun And Code", 4483362458)
+local EventTab = Window:CreateTab("Event", 4483362458)
 
 ------MAIN--------
 local Paragraph = MainTab:CreateParagraph({Title = "Thanks For Using", Content = "Contact 0856469268"})
