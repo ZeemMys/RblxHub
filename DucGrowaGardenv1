@@ -810,9 +810,15 @@ end)
 local moonlitESPEnabled = false
 local moonlitESPObjects = {}
 
--- Tạo chấm tròn tím
-local moonlitESPEnabled = false
-local moonlitESPObjects = {}
+-- Kiểm tra màu sắc tím (có thể thay đổi để chính xác hơn)
+local function isPurpleParticle(particleEmitter)
+    if particleEmitter:IsA("ParticleEmitter") then
+        local color = particleEmitter.Color
+        -- Kiểm tra nếu màu sắc có thể gần giống tím (có thể điều chỉnh giá trị này)
+        return color and color.Keypoints[1].Value == Color3.fromRGB(170, 0, 255)
+    end
+    return false
+end
 
 -- Tạo chấm tròn tím
 local function createMoonlitMarker(part)
@@ -855,12 +861,12 @@ local function scanForMoonlitFruits()
                         if fruit:IsA("Model") and fruit.PrimaryPart then
                             local primary = fruit.PrimaryPart
                             
-                            -- Kiểm tra nếu có ParticleEmitter (tên là Particle)
+                            -- Kiểm tra nếu có ParticleEmitter (tên là Swirls, Effects, hay màu sắc tím)
                             for _, particle in ipairs(fruit:GetDescendants()) do
-                                if particle:IsA("ParticleEmitter") and particle.Name == "Particle" then
+                                if isPurpleParticle(particle) then
                                     local marker = createMoonlitMarker(primary)
                                     table.insert(moonlitESPObjects, marker)
-                                    break -- Dừng kiểm tra sau khi đã tìm thấy ParticleEmitter
+                                    break -- Dừng kiểm tra sau khi đã tìm thấy ParticleEmitter với màu tím
                                 end
                             end
                         end
