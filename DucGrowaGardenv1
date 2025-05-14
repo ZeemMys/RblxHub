@@ -888,11 +888,14 @@ local function scanForFruitESP()
     end
 end
 
--- Hàm cập nhật ESP
+-- Hàm cập nhật ESP (cập nhật chỉ khi bật/tắt)
 local function updateESP()
     -- Nếu bật ESP, quét và tạo ESP cho các quả
     if ESPEnabled then
-        scanForFruitESP()  -- Quét và tạo ESP
+        -- Nếu chưa quét và tạo ESP, quét ngay
+        if #createdESPs == 0 then
+            scanForFruitESP()  -- Quét và tạo ESP
+        end
     else
         -- Nếu tắt ESP, xóa tất cả các ESP hiện có
         for _, esp in ipairs(createdESPs) do
