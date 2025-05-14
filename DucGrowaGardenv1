@@ -890,11 +890,11 @@ end
 
 -- Hàm cập nhật ESP (cập nhật chỉ khi bật/tắt)
 local function updateESP()
-    -- Nếu bật ESP, quét và tạo ESP cho các quả
+    -- Nếu bật ESP
     if ESPEnabled then
-        -- Nếu chưa quét và tạo ESP, quét ngay
+        -- Nếu chưa có ESP nào, tạo mới
         if #createdESPs == 0 then
-            scanForFruitESP()  -- Quét và tạo ESP
+            scanForFruitESP()  -- Quét và tạo ESP nếu chưa có ESP nào
         end
     else
         -- Nếu tắt ESP, xóa tất cả các ESP hiện có
