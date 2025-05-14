@@ -328,13 +328,11 @@ MainTab:CreateButton({
     end
 })
 
--- Client Script (gắn vào StarterPlayer -> StarterPlayerScripts)
-
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local workspace = game:GetService("Workspace")
 
--- Tìm đối tượng NPC và ProximityPrompt
+-- Tìm NPC và ProximityPrompt
 local npc = workspace.NPCS:WaitForChild("Eloise")
 local humanoidRootPart = npc:WaitForChild("HumanoidRootPart")
 local proximityPrompt = humanoidRootPart:WaitForChild("ProximityPrompt")
@@ -343,14 +341,16 @@ local proximityPrompt = humanoidRootPart:WaitForChild("ProximityPrompt")
 MainTab:CreateButton({
     Name = "Gear GUI",  -- Tên button trong EventTab
     Callback = function()
-        -- Teleport đến NPC Eloise
+        -- Teleport người chơi đến NPC Eloise
         if humanoidRootPart then
+            -- Đặt nhân vật người chơi gần HumanoidRootPart của NPC Eloise
             player.Character:SetPrimaryPartCFrame(humanoidRootPart.CFrame)
             print("Đã teleport đến NPC Eloise")
-            
-            -- Kích hoạt ProximityPrompt sau khi teleport
+
+            -- Sau khi teleport, kích hoạt ProximityPrompt tự động
             if proximityPrompt then
-                fireproximityprompt(proximityPrompt)  -- Gọi ProximityPrompt
+                -- Kích hoạt ProximityPrompt để người chơi có thể tương tác với NPC
+                fireproximityprompt(proximityPrompt)
                 print("Đã kích hoạt ProximityPrompt với NPC Eloise")
             end
         end
