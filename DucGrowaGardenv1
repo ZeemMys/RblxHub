@@ -892,7 +892,7 @@ end)
 
 -- Toggle để bật/tắt ESP
 EventTab:CreateToggle({
-    Name = "ESP Moonlit Fruit",
+    Name = "ESP Moonlit Fruit (Sorry Not Work rn:(",
     CurrentValue = false,
     Callback = function(Value)
         moonlitESPEnabled = Value
@@ -902,4 +902,136 @@ EventTab:CreateToggle({
             scanForMoonlitFruits() -- Nếu bật, quét và tạo ESP cho Moonlit
         end
     end
+})
+
+MainTab:CreateToggle({
+    Name = "Auto Harvest Moonlit Fruit",
+    CurrentValue = false,
+    Callback = function(Value)
+        _G.AutoHarvestUniversal = Value
+
+        if not Value then
+            print("⛔ Đã tắt Auto Harvest Moonlit Fruit")
+            return
+        end
+
+        task.spawn(function()
+            local Players = game:GetService("Players")
+            local player = Players.LocalPlayer
+            local hrp = player.Character:WaitForChild("HumanoidRootPart")
+
+            -- ✅ Teleport trực tiếp đến quả
+            local function teleportTo(part)
+                if not part or not part:IsA("BasePart") then return end
+                local targetPosition = part.Position + Vector3.new(0, 4, 0)
+                hrp.CFrame = CFrame.new(targetPosition) -- Chỉ teleport trực tiếp
+                task.wait(0.5)  -- Thêm thời gian đợi để đảm bảo rằng bạn đứng đúng chỗ
+            end
+
+            -- ✅ Lấy vườn của người chơi
+            local function getFarmYouAreIn()
+                local farmFolder = workspace:FindFirstChild("Farm")
+                if not farmFolder then return nil end
+
+                local closestFarm, closestDist = nil, math.huge
+                for _, farm in ipairs(farmFolder:GetChildren()) do
+                    local important = farm:FindFirstChild("Important")
+                    local plants = important and important:FindFirstChild("Plants_Physical")
+                    if plants then
+                        for _, obj in ipairs(plants:GetDescendants()) do
+                            if obj:IsA("BasePart") then
+                                local dist = (hrp.Position - obj.Position).Magnitude
+                                if dist < closestDist then
+                                    closestDist = dist
+                                    closestFarm = farm
+                                end
+                                break
+                            end
+                        end
+                    end
+                end
+
+                return closestFarm
+            end
+
+            -- ✅ Kiểm tra xem trái cây có phải là Moonlit không
+            local function isMoonlitFruit(fruit)
+                local particles = fruit:GetDescendants()
+                for _, part in ipairs(particles) do
+                    if part:IsA("ParticleEmitter") then
+                        local color = part.Color
+                        if color and color.Keypoints[1].Value == Color3.fromRGB(0, 170, 85) then
+                            return true
+                        end
+                    end
+                end
+                return false
+            end
+
+            -- ✅ Kiểm tra cây đã trưởng thành chưa
+            local function isPlantMature(plant)
+                local fruitsFolder = plant:FindFirstChild("Fruits")
+                if fruitsFolder then
+                    local growFolder = fruitsFolder:FindFirstChild("Grow") or fruitsFolder
+                    for _, fruit in ipairs(growFolder:GetChildren()) do
+                        if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
+                            return true  -- Cây đã có quả để hái
+                        end
+                    end
+                end
+                return false  -- Cây không có quả
+            end
+
+            while task.wait(1) do
+                if not _G.AutoHarvestUniversal then break end
+
+                pcall(function()
+                    local farm = getFarmYouAreIn()
+                    if not farm then return end
+
+                    local plantsFolder = farm:FindFirstChild("Important") and farm.Important:FindFirstChild("Plants_Physical")
+                    if not plantsFolder then return end
+
+                    for _, plant in ipairs(plantsFolder:GetChildren()) do
+                        if not _G.AutoHarvestUniversal then return end
+
+                        local harvested = false
+
+                        -- 🌳 Loại cây có Fruits và đã trưởng thành
+                        local fruitsFolder = plant:FindFirstChild("Fruits")
+                        if fruitsFolder and isPlantMature(plant) then
+                            local growFolder = fruitsFolder:FindFirstChild("Grow") or fruitsFolder
+                            for _, fruit in ipairs(growFolder:GetChildren()) do
+                                if not _G.AutoHarvestUniversal then return end
+                                if (fruit:IsA("BasePart") or fruit:IsA("MeshPart")) and isMoonlitFruit(fruit) then
+                                    local prompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
+                                    if prompt then
+                                        teleportTo(fruit)  -- Teleport đến quả Moonlit
+                                        fireproximityprompt(prompt)
+                                        task.wait(0.5)  -- Đợi thêm 0.5 giây để xác nhận đã hái
+                                        harvested = true
+                                    end
+                                end
+                            end
+                        end
+
+                        -- 🥕 Loại cây không có Fruits và đã trưởng thành
+                        if not harvested then
+                            for _, part in ipairs(plant:GetDescendants()) do
+                                if not _G.AutoHarvestUniversal then return end
+                                if part:IsA("BasePart") then
+                                    local prompt = part:FindFirstChildWhichIsA("ProximityPrompt")
+                                    if prompt then
+                                        teleportTo(part)  -- Teleport đến cây
+                                        fireproximityprompt(prompt)
+                                        task.wait(0.5)  -- Đợi thêm 0.5 giây để xác nhận đã hái
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+            end
+        end)
+    end,
 })
