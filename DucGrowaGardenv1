@@ -329,7 +329,7 @@ MainTab:CreateButton({
 })
 
 MainTab:CreateButton({
-    Name = "Mở Gear Shop",  -- Tên button trong EventTab
+    Name = "Gear GUI",  -- Tên button trong EventTab
     Callback = function()
         local player = game.Players.LocalPlayer
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -343,8 +343,8 @@ MainTab:CreateButton({
                 and workspace.NPCS.Eloise:FindFirstChild("HumanoidRootPart")
                 and workspace.NPCS.Eloise.HumanoidRootPart:FindFirstChildOfClass("ProximityPrompt")
 
-            -- Tìm sự kiện UpdateGearStock
-            local updateGearEvent = game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("UpdateGearStock")
+            -- Tìm sự kiện BuyGearStock
+            local buyGearEvent = game:GetService("ReplicatedStorage"):WaitForChild("GameEvents"):WaitForChild("BuyGearStock")
 
             if hrp and tpPoint and prompt then
                 -- Teleport tới Tutorial_Point_3
@@ -357,12 +357,12 @@ MainTab:CreateButton({
                 fireproximityprompt(prompt)
                 print("✅ Đã mở Gear Shop")
 
-                -- Gọi sự kiện UpdateGearStock để cập nhật stock
-                if updateGearEvent then
-                    updateGearEvent:FireServer()  -- Gửi sự kiện tới server
-                    print("✅ Đã gọi sự kiện UpdateGearStock")
+                -- Gọi sự kiện BuyGearStock để mua gear
+                if buyGearEvent then
+                    buyGearEvent:FireServer()  -- Gửi sự kiện tới server
+                    print("✅ Đã gọi sự kiện BuyGearStock")
                 else
-                    warn("⚠️ Không tìm thấy sự kiện UpdateGearStock.")
+                    warn("⚠️ Không tìm thấy sự kiện BuyGearStock.")
                 end
             else
                 warn("⚠️ Không tìm thấy vị trí hoặc prompt.")
