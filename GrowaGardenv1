@@ -75,18 +75,27 @@ MainTab:CreateToggle({
             end
 
             local function getMyFarm()
-                local allPlayers = Players:GetPlayers()
-                table.sort(allPlayers, function(a, b) return a.Name < b.Name end)
-                local myIndex = table.find(allPlayers, player)
-                if not myIndex then return nil end
-
                 local farmFolder = workspace:FindFirstChild("Farm")
                 if not farmFolder then return nil end
 
-                local farms = farmFolder:GetChildren()
-                table.sort(farms, function(a, b) return a.Name < b.Name end)
+                for _, farm in ipairs(farmFolder:GetChildren()) do
+                    -- Kiểm tra tên farm là tên người chơi
+                    if farm.Name == player.Name then
+                        return farm
+                    end
 
-                return farms[myIndex]
+                    -- Hoặc farm có Object/Value lưu tên người chơi
+                    local owner = farm:FindFirstChild("Owner")
+                    if owner then
+                        if owner:IsA("StringValue") and owner.Value == player.Name then
+                            return farm
+                        elseif owner:IsA("ObjectValue") and owner.Value == player then
+                            return farm
+                        end
+                    end
+                end
+
+                return nil
             end
 
             while task.wait(1.2) do
@@ -102,19 +111,17 @@ MainTab:CreateToggle({
                     for _, plant in ipairs(plants:GetChildren()) do
                         if not _G.AutoHarvestUniversal then return end
 
-                        -- Hái cây (như cherry, raspberry)
+                        -- Hái trái cây
                         local fruitFolder = plant:FindFirstChild("Fruits")
                         if fruitFolder then
                             local growFolder = fruitFolder:FindFirstChild("Grow") or fruitFolder
                             for _, fruit in ipairs(growFolder:GetChildren()) do
                                 if not _G.AutoHarvestUniversal then return end
 
-                                -- Teleport to the plant's main part (Folder name is the tree name)
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
                                     local fruitPrompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if fruitPrompt then
-                                        -- Teleport to the plant's base
-                                        tweenTo(plant)  -- Here we teleport directly to the plant instead of just the fruit
+                                        tweenTo(plant)
                                         fireproximityprompt(fruitPrompt)
                                         task.wait(0.4)
                                     end
@@ -122,7 +129,7 @@ MainTab:CreateToggle({
                             end
                         end
 
-                        -- Nhổ cây (như carrot, tre)
+                        -- Nhổ rau củ
                         local prompt = plant:FindFirstChildWhichIsA("ProximityPrompt", true)
                         if prompt then
                             local mainPart = plant:IsA("Part") and plant or plant:FindFirstChildWhichIsA("BasePart")
@@ -169,7 +176,7 @@ MainTab:CreateToggle({
                         end
                     end)
 
-                    task.wait(10) -- Thời gian giữa mỗi lần bán
+                    task.wait(15) -- Thời gian giữa mỗi lần bán
                 end
             end)
         else
