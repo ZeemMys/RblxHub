@@ -904,8 +904,8 @@ EventTab:CreateToggle({
     end
 })
 
-MainTab:CreateToggle({
-    Name = "Auto Harvest Moonlit Fruit",
+EventTab:CreateToggle({
+     = "Auto Harvest Moonlit Fruit",
     CurrentValue = false,
     Callback = function(Value)
         _G.AutoHarvestUniversal = Value
