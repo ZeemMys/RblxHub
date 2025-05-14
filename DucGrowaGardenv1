@@ -810,17 +810,17 @@ end)
 local moonlitESPEnabled = false
 local moonlitESPObjects = {}
 
--- Kiểm tra màu sắc tím (có thể thay đổi để chính xác hơn)
-local function isPurpleParticle(particleEmitter)
+-- Kiểm tra xem ParticleEmitter có phải màu Moonlit không (Dựa trên màu sắc bạn đã cung cấp)
+local function isMoonlitParticle(particleEmitter)
     if particleEmitter:IsA("ParticleEmitter") then
         local color = particleEmitter.Color
-        -- Kiểm tra nếu màu sắc có thể gần giống tím (có thể điều chỉnh giá trị này)
-        return color and color.Keypoints[1].Value == Color3.fromRGB(170, 0, 255)
+        -- Kiểm tra xem màu sắc có phải màu Moonlit (0, 0.666667, 0.333333, 1)
+        return color and color.Keypoints[1].Value == Color3.fromRGB(0, 170, 85) -- RGB tương đương (0, 0.666667, 0.333333)
     end
     return false
 end
 
--- Tạo chấm tròn tím
+-- Tạo ESP (chấm tròn) cho Moonlit
 local function createMoonlitMarker(part)
     local sphere = Instance.new("SphereHandleAdornment")
     sphere.Name = "MoonlitESP"
@@ -828,13 +828,13 @@ local function createMoonlitMarker(part)
     sphere.AlwaysOnTop = true
     sphere.ZIndex = 10
     sphere.Radius = 0.6
-    sphere.Color3 = Color3.fromRGB(170, 0, 255)
+    sphere.Color3 = Color3.fromRGB(0, 170, 85) -- Màu Moonlit (RGB 0, 170, 85)
     sphere.Transparency = 0.25
     sphere.Parent = part
     return sphere
 end
 
--- Xoá toàn bộ chấm
+-- Xóa tất cả các ESP Moonlit hiện tại
 local function clearAllMoonlitESP()
     for _, obj in pairs(moonlitESPObjects) do
         if obj and obj.Parent then
@@ -844,9 +844,9 @@ local function clearAllMoonlitESP()
     table.clear(moonlitESPObjects)
 end
 
--- Quét tất cả fruit trong các Farms
+-- Quét các mô hình trái cây trong Farm và tìm ParticleEmitter có màu Moonlit
 local function scanForMoonlitFruits()
-    clearAllMoonlitESP()
+    clearAllMoonlitESP()  -- Xóa các ESP cũ
 
     local farmFolder = workspace:FindFirstChild("Farm")
     if not farmFolder then return end
@@ -859,15 +859,15 @@ local function scanForMoonlitFruits()
                 if fruitsFolder then
                     for _, fruit in ipairs(fruitsFolder:GetChildren()) do
                         if fruit:IsA("Model") then
-                            -- Kiểm tra tất cả các Part trong mô hình trái cây
+                            -- Quét tất cả các Part trong mô hình trái cây
                             for _, part in ipairs(fruit:GetChildren()) do
                                 if part:IsA("Part") then
-                                    -- Kiểm tra nếu có ParticleEmitter trong Part đó
+                                    -- Kiểm tra ParticleEmitter trong mỗi Part
                                     for _, particle in ipairs(part:GetDescendants()) do
-                                        if isPurpleParticle(particle) then
+                                        if isMoonlitParticle(particle) then
                                             local marker = createMoonlitMarker(part)
                                             table.insert(moonlitESPObjects, marker)
-                                            break -- Dừng kiểm tra sau khi đã tìm thấy ParticleEmitter với màu tím
+                                            break -- Chỉ cần tìm một ParticleEmitter màu Moonlit là đủ
                                         end
                                     end
                                 end
@@ -880,7 +880,7 @@ local function scanForMoonlitFruits()
     end
 end
 
--- Theo dõi toggle
+-- Theo dõi và quét liên tục khi ESP bật
 task.spawn(function()
     while task.wait(2) do
         if moonlitESPEnabled then
@@ -889,16 +889,16 @@ task.spawn(function()
     end
 end)
 
--- Toggle ESP
+-- Toggle để bật tắt ESP
 EventTab:CreateToggle({
     Name = "ESP Moonlit Fruit",
     CurrentValue = false,
     Callback = function(Value)
         moonlitESPEnabled = Value
         if not Value then
-            clearAllMoonlitESP()
+            clearAllMoonlitESP() -- Nếu tắt, xóa tất cả ESP
         else
-            scanForMoonlitFruits()
+            scanForMoonlitFruits() -- Nếu bật, quét các trái cây và tạo ESP
         end
     end
 })
