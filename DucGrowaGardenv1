@@ -332,27 +332,20 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 local workspace = game:GetService("Workspace")
 
--- Tìm NPC và ProximityPrompt
 local npc = workspace.NPCS:WaitForChild("Eloise")
 local humanoidRootPart = npc:WaitForChild("HumanoidRootPart")
 local proximityPrompt = humanoidRootPart:WaitForChild("ProximityPrompt")
+
+local tutorialPoint_3 = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_3")
 
 -- Tạo Button trong MainTab cho "Gear GUI"
 MainTab:CreateButton({
     Name = "Gear GUI",  -- Tên button trong EventTab
     Callback = function()
-        -- Teleport người chơi đến NPC Eloise
-        if humanoidRootPart then
-            -- Đặt nhân vật người chơi gần HumanoidRootPart của NPC Eloise
-            player.Character:SetPrimaryPartCFrame(humanoidRootPart.CFrame)
-            print("Đã teleport đến NPC Eloise")
-
-            -- Sau khi teleport, kích hoạt ProximityPrompt tự động
-            if proximityPrompt then
-                -- Kích hoạt ProximityPrompt để người chơi có thể tương tác với NPC
-                fireproximityprompt(proximityPrompt)
-                print("Đã kích hoạt ProximityPrompt với NPC Eloise")
-            end
+        -- Teleport người chơi đến vị trí Tutorial_Point_3 (hoặc bất kỳ điểm nào bạn muốn)
+        if tutorialPoint_3 then
+            player.Character:SetPrimaryPartCFrame(tutorialPoint_3.CFrame)
+            print("Đã teleport đến Tutorial_Point_3")
         end
     end,
 })
@@ -361,11 +354,21 @@ MainTab:CreateButton({
 MainTab:CreateButton({
     Name = "Egg GUI",  -- Tên button trong EventTab
     Callback = function()
-        -- Khi nhấn nút, teleport đến Tutorial_Point_4
-        local tutorialPoint_4 = workspace.Tutorial_Points:WaitForChild("Tutorial_Point_4")
-        if tutorialPoint_4 then
-            player.Character:SetPrimaryPartCFrame(tutorialPoint_4.CFrame)
-            print("Đã teleport đến Tutorial_Point_4")
+        -- Khi nhấn nút, teleport người chơi đến NPC Eloise
+        if humanoidRootPart then
+            -- Teleport người chơi đến vị trí gần NPC Eloise (gần ProximityPrompt)
+            player.Character:SetPrimaryPartCFrame(humanoidRootPart.CFrame + Vector3.new(0, 3, 0)) -- Thêm 3 để đứng gần NPC
+
+            print("Đã teleport đến NPC Eloise")
+
+            -- Tạo một khoảng dừng để người chơi có thể đến gần ProximityPrompt
+            wait(0.5)  -- Đợi một chút để người chơi đứng đúng vị trí
+
+            -- Tự động kích hoạt ProximityPrompt sau khi teleport
+            if proximityPrompt then
+                fireproximityprompt(proximityPrompt)  -- Kích hoạt ProximityPrompt
+                print("Đã kích hoạt ProximityPrompt với NPC Eloise")
+            end
         end
     end,
 })
