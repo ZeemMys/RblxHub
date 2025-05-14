@@ -328,18 +328,14 @@ MainTab:CreateButton({
     end
 })
 
-
-
--- Tạo Button trong MainTab cho "Egg GUI"
-MainTab:CreatMainTab:CreateButton({
-    Name = "Gear GUI",  -- Tên button trong EventTab
+MainTab:CreateButton({
+    Name = "Mở Gear Shop",  -- Tên button trong EventTab
     Callback = function()
         local player = game.Players.LocalPlayer
         local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 
         -- Chỉ thực hiện hành động một lần khi nút được bấm
         pcall(function()
-            -- Tìm vị trí teleport và ProximityPrompt
             hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
             local tpPoint = workspace:FindFirstChild("Tutorial_Points") and workspace.Tutorial_Points:FindFirstChild("Tutorial_Point_3")
             local prompt = workspace:FindFirstChild("NPCS")
@@ -373,27 +369,6 @@ MainTab:CreatMainTab:CreateButton({
             end
         end)
     end
-})
-
-    Name = "Egg GUI",  -- Tên button trong EventTab
-    Callback = function()
-        -- Khi nhấn nút, teleport người chơi đến NPC Eloise
-        if humanoidRootPart then
-            -- Teleport người chơi đến vị trí gần NPC Eloise (gần ProximityPrompt)
-            player.Character:SetPrimaryPartCFrame(humanoidRootPart.CFrame + Vector3.new(0, 3, 0)) -- Thêm 3 để đứng gần NPC
-
-            print("Đã teleport đến NPC Eloise")
-
-            -- Tạo một khoảng dừng để người chơi có thể đến gần ProximityPrompt
-            wait(0.5)  -- Đợi một chút để người chơi đứng đúng vị trí
-
-            -- Tự động kích hoạt ProximityPrompt sau khi teleport
-            if proximityPrompt then
-                fireproximityprompt(proximityPrompt)  -- Kích hoạt ProximityPrompt
-                print("Đã kích hoạt ProximityPrompt với NPC Eloise")
-            end
-        end
-    end,
 })
 
 ---------Funny------------
