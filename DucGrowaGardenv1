@@ -64,12 +64,12 @@ MainTab:CreateToggle({
             local player = Players.LocalPlayer
             local hrp = player.Character:WaitForChild("HumanoidRootPart")
 
-            -- ✅ Teleport trực tiếp, đứng trên quả/cây
+            -- ✅ Teleport trực tiếp, đứng trên quả/cây, chờ thêm thời gian sau khi teleport
             local function teleportTo(part)
                 if not part or not part:IsA("BasePart") then return end
                 local targetPosition = part.Position + Vector3.new(0, 4, 0)
                 hrp.CFrame = CFrame.new(targetPosition) -- Chỉ teleport trực tiếp
-                task.wait(0.1)
+                task.wait(0.5)  -- Thêm thời gian đợi để đảm bảo rằng bạn đứng đúng chỗ
             end
 
             -- ✅ Lấy vườn của người chơi
@@ -137,9 +137,9 @@ MainTab:CreateToggle({
                                 if fruit:IsA("BasePart") or fruit:IsA("MeshPart") then
                                     local prompt = fruit:FindFirstChildWhichIsA("ProximityPrompt")
                                     if prompt then
-                                        teleportTo(fruit)
+                                        teleportTo(fruit)  -- Teleport đến quả
                                         fireproximityprompt(prompt)
-                                        task.wait(0.3)
+                                        task.wait(0.5)  -- Đợi thêm 0.5 giây để xác nhận đã hái
                                         harvested = true
                                     end
                                 end
@@ -153,9 +153,9 @@ MainTab:CreateToggle({
                                 if part:IsA("BasePart") then
                                     local prompt = part:FindFirstChildWhichIsA("ProximityPrompt")
                                     if prompt then
-                                        teleportTo(part)
+                                        teleportTo(part)  -- Teleport đến cây
                                         fireproximityprompt(prompt)
-                                        task.wait(0.6)
+                                        task.wait(0.5)  -- Đợi thêm 0.5 giây để xác nhận đã hái
                                     end
                                 end
                             end
@@ -165,7 +165,7 @@ MainTab:CreateToggle({
             end
         end)
     end,
-})
+})              
 
 MainTab:CreateToggle({
     Name = "Auto Sell",
